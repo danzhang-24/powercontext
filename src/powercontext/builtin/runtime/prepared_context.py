@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from itertools import chain
@@ -56,6 +57,8 @@ class _PreparedContextEntry:
     citation: dict[str, object]
     content: str
     truncated: bool
+    start: int | None = None
+    end: int | None = None
 
 
 @dataclass(frozen=True)
@@ -106,6 +109,7 @@ class PreparedContextBuild:
     origins: tuple[PreparedContextOrigin, ...]
     omissions: PreparedContextOmissions = PreparedContextOmissions()
     code_origins: tuple[CodeEvidenceRef, ...] = ()
+    fragments: tuple[PreparedFragment, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -115,6 +119,16 @@ class MemoryEntryAddress:
     memory: ArtifactAddress
     entry_id: str
     entry_version_id: str
+
+
+@dataclass(frozen=True)
+class PreparedFragment:
+    """One literal span selected from an exact Memory entry."""
+
+    address: MemoryEntryAddress
+    start: int
+    end: int
+    text: str
 
 
 PreparedContextOrigin = MemoryCitation | ArtifactRef | MemoryEntryAddress | ArtifactAddress
@@ -228,6 +242,21 @@ class PreparedContextBuilder:
 
             return assemble_code(request, code_candidates, self.entry_limit, historical)
 
+        if request.evidence_selection:
+            content, origins, omissions, fragments = self._select_evidence(
+                request=request,
+                memory_candidates=memory_candidates,
+            )
+            if content is None:
+                return PreparedContextBuild(context=self.empty(), origins=(), omissions=omissions)
+            content_bytes = len(content.encode("utf-8"))
+            return PreparedContextBuild(
+                context=PreparedContext(status="ready", content=content, content_bytes=content_bytes),
+                origins=origins,
+                omissions=omissions,
+                fragments=fragments,
+            )
+
         if sum(len(candidates.hits) for candidates in memory_candidates) > self.memory_candidate_limit:
             raise PreparedContextInvariantError("memory-candidate-limit")
         if len(topic_memory_hits) > self.topic_memory_candidate_limit:
@@ -254,6 +283,92 @@ class PreparedContextBuilder:
             context=PreparedContext(status="ready", content=content, content_bytes=content_bytes),
             origins=origins,
             omissions=omissions,
+        )
+
+    def _select_evidence(
+        self,
+        *,
+        request: PrepareContextRequest,
+        memory_candidates: Sequence[PreparedMemoryCandidates],
+    ) -> tuple[
+        str | None,
+        tuple[PreparedContextOrigin, ...],
+        PreparedContextOmissions,
+        tuple[PreparedFragment, ...],
+    ]:
+        """Pick literal entry spans relevant to the query under the byte budget."""
+
+        query_tokens = _evidence_tokens(request.query)
+        candidates: list[
+            tuple[float, int, int, int, str, MemoryEntryAddress, dict[str, object]]
+        ] = []
+        hit_rank = 0
+        for group in memory_candidates:
+            for hit in group.hits:
+                hit_rank += 1
+                if (
+                    not hit.entry_id.strip()
+                    or not hit.entry_version_id.strip()
+                    or not hit.text.strip()
+                ):
+                    continue
+                address = MemoryEntryAddress(
+                    memory=ArtifactAddress(scope_id=group.scope_id, artifact=hit.memory_ref),
+                    entry_id=hit.entry_id,
+                    entry_version_id=hit.entry_version_id,
+                )
+                citation = {
+                    "scope_id": group.scope_id,
+                    "memory_ref": hit.memory_ref.model_dump(mode="json"),
+                    "entry_id": hit.entry_id,
+                    "entry_version_id": hit.entry_version_id,
+                }
+                for start, end in _sentence_spans(hit.text):
+                    text = hit.text[start:end]
+                    score = _lexical_overlap(query_tokens, text)
+                    candidates.append((score, -hit_rank, start, end, text, address, citation))
+
+        if not candidates:
+            return None, (), PreparedContextOmissions(), ()
+        candidates.sort(key=lambda candidate: (-candidate[0], candidate[1], candidate[2]))
+
+        entries: list[_PreparedContextEntry] = []
+        fragments: list[PreparedFragment] = []
+        seen: set[tuple[str, str, str, int, int]] = set()
+        for score, _rank, start, end, text, address, citation in candidates:
+            if score <= 0 and fragments:
+                continue
+            identity = (
+                address.memory.scope_id,
+                address.memory.artifact.artifact_id,
+                address.entry_id,
+                start,
+                end,
+            )
+            if identity in seen:
+                continue
+            seen.add(identity)
+            fitted = _fit_evidence_fragment(
+                entries,
+                request.max_bytes,
+                address,
+                citation,
+                text,
+                start,
+            )
+            if fitted is None:
+                continue
+            entry, fragment = fitted
+            entries.append(entry)
+            fragments.append(fragment)
+
+        if not entries:
+            return None, (), PreparedContextOmissions(), ()
+        return (
+            _render(entries),
+            tuple(fragment.address for fragment in fragments),
+            PreparedContextOmissions(),
+            tuple(fragments),
         )
 
     def probe_budget(
@@ -685,6 +800,78 @@ def _interleave_groups(groups: Sequence[Sequence[_Item]]) -> tuple[_Item, ...]:
     return tuple(ordered)
 
 
+_EVIDENCE_TOKEN_RE = re.compile(r"[0-9a-z_]+|[\u4e00-\u9fff]")
+_SENTENCE_RE = re.compile(r"[^.!?。！？\n]+[.!?。！？]?")
+
+
+def _evidence_tokens(text: str) -> set[str]:
+    return {match.group(0).lower() for match in _EVIDENCE_TOKEN_RE.finditer(text)}
+
+
+def _sentence_spans(text: str) -> tuple[tuple[int, int], ...]:
+    spans: list[tuple[int, int]] = []
+    for match in _SENTENCE_RE.finditer(text):
+        start, end = match.span()
+        while start < end and text[start].isspace():
+            start += 1
+        while end > start and text[end - 1].isspace():
+            end -= 1
+        if start < end:
+            spans.append((start, end))
+    return tuple(spans)
+
+
+def _lexical_overlap(query_tokens: set[str], text: str) -> float:
+    if not query_tokens:
+        return 0.0
+    return float(len(query_tokens & _evidence_tokens(text)))
+
+
+def _fit_evidence_fragment(
+    existing: Sequence[_PreparedContextEntry],
+    max_bytes: int,
+    address: MemoryEntryAddress,
+    citation: dict[str, object],
+    text: str,
+    start: int,
+) -> tuple[_PreparedContextEntry, PreparedFragment] | None:
+    end = start + len(text)
+    entry = _PreparedContextEntry(
+        origin=address,
+        kind="memory",
+        citation=citation,
+        content=text,
+        truncated=False,
+        start=start,
+        end=end,
+    )
+    if len(_render((*existing, entry)).encode("utf-8")) <= max_bytes:
+        return entry, PreparedFragment(address=address, start=start, end=end, text=text)
+    lower, upper = 1, len(text)
+    best: tuple[_PreparedContextEntry, PreparedFragment] | None = None
+    while lower <= upper:
+        middle = (lower + upper) // 2
+        piece = text[:middle]
+        candidate = _PreparedContextEntry(
+            origin=address,
+            kind="memory",
+            citation=citation,
+            content=piece,
+            truncated=True,
+            start=start,
+            end=start + middle,
+        )
+        if len(_render((*existing, candidate)).encode("utf-8")) <= max_bytes:
+            best = (
+                candidate,
+                PreparedFragment(address=address, start=start, end=start + middle, text=piece),
+            )
+            lower = middle + 1
+        else:
+            upper = middle - 1
+    return best
+
+
 def _render(entries: Sequence[_PreparedContextEntry]) -> str:
     envelope = {
         "trust": "untrusted_history",
@@ -715,6 +902,9 @@ def _render_entry(entry: _PreparedContextEntry) -> dict[str, object]:
         "content": entry.content,
         "truncated": entry.truncated,
     }
+    if entry.start is not None and entry.end is not None:
+        rendered["start"] = entry.start
+        rendered["end"] = entry.end
     if entry.kind != "memory":
         rendered["kind"] = entry.kind
     return rendered
