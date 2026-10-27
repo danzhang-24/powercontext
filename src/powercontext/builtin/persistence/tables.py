@@ -706,6 +706,33 @@ SOURCE_DEFINITION_MANIFESTS_TABLE = Table(
     UniqueConstraint("definition_name", "fingerprint", name="uq_pc_source_definition_manifest_fingerprint"),
 )
 
+SOURCE_LIFECYCLE_NODES_TABLE = Table(
+    "pc_source_lifecycle_nodes",
+    SHARED_METADATA,
+    Column("scope_id", identity_string(MAX_SCOPE_ID_LENGTH), primary_key=True),
+    Column("node_id", identity_string(128), primary_key=True),
+    Column("node_kind", identity_string(16), nullable=False),
+    Column("binding", _canonical_payload_type(), nullable=False),
+    Column("parents", _canonical_payload_type(), nullable=False),
+    Column("policy", identity_string(3), nullable=False),
+    Column("available", Boolean, nullable=False),
+    Column("lifecycle_revision", Integer),
+    Column("event_sequence", BigInteger, server_default="0", nullable=False),
+    Column("event_payload", _canonical_payload_type()),
+    ForeignKeyConstraint(("scope_id",), ("pc_scopes.scope_id",), ondelete="CASCADE"),
+    CheckConstraint(
+        "node_kind IN ('source', 'memory', 'topic')",
+        name="ck_pc_source_lifecycle_nodes_kind",
+    ),
+    CheckConstraint("policy IN ('all', 'any')", name="ck_pc_source_lifecycle_nodes_policy"),
+    CheckConstraint("event_sequence >= 0", name="ck_pc_source_lifecycle_nodes_sequence_nonnegative"),
+    CheckConstraint(
+        "(node_kind = 'source' AND lifecycle_revision > 0) OR "
+        "(node_kind <> 'source' AND lifecycle_revision IS NULL)",
+        name="ck_pc_source_lifecycle_nodes_revision",
+    ),
+)
+
 EXTERNAL_SKILL_REGISTRATIONS_TABLE = Table(
     "pc_external_skill_registrations",
     SHARED_METADATA,
@@ -919,6 +946,7 @@ SHARED_TABLES = (
     ARTIFACT_PROCESSING_MIGRATION_RECEIPTS_TABLE,
     CONNECTOR_CHECKPOINTS_TABLE,
     SOURCE_DEFINITION_MANIFESTS_TABLE,
+    SOURCE_LIFECYCLE_NODES_TABLE,
     EXTERNAL_SKILL_REGISTRATIONS_TABLE,
     SKILL_PACKAGES_TABLE,
     AGENT_SKILL_TARGETS_TABLE,

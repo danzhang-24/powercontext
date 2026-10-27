@@ -2668,6 +2668,24 @@ class ScopedTopicMemoryApplication:
                     embedding_timeout_seconds,
                 )
         observer = self._runtime._topic_memory_search_observer
+        lifecycle = getattr(self._runtime, "lifecycle", None)
+        if lifecycle is not None:
+            active_topics = await lifecycle.active_topic_refs(self.scope_id)
+            if active_topics is not None:
+                result = result.model_copy(
+                    update={
+                        "hits": tuple(
+                            hit
+                            for hit in result.hits
+                            if (
+                                hit.artifact_ref.family,
+                                hit.artifact_ref.artifact_id,
+                                hit.artifact_ref.revision,
+                            )
+                            in active_topics
+                        )
+                    }
+                )
         if observer is not None:
             try:
                 observer(result.mode, used_fallback)
