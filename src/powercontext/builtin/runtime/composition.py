@@ -722,6 +722,10 @@ def _artifact_processing_bindings(  # noqa: C901 - validate and assemble one reg
         "profile": config.runtime.profile_schedule_enabled or None,
         "skill": None,
     }
+    count_thresholds = {
+        "memory": config.runtime.memory_source_count_threshold,
+        "topic-memory": config.runtime.topic_memory_source_count_threshold,
+    }
     for family, schedule in automatic.items():
         if schedule is not None and family not in declared | registered:
             if (
@@ -736,6 +740,10 @@ def _artifact_processing_bindings(  # noqa: C901 - validate and assemble one reg
                 "topic-memory": "topic-memory-generation",
                 "profile": "scheduled-profile-generation",
             }[family]
+            raise BuiltinConfigurationError(issue)
+    for family, threshold in count_thresholds.items():
+        if threshold is not None and family not in declared | registered:
+            issue = "scheduled-pipeline" if family == "memory" else "topic-memory-generation"
             raise BuiltinConfigurationError(issue)
     if config.runtime.artifact_processing_role == "api":
         return tuple(configured)
@@ -786,6 +794,8 @@ def _artifact_processing_bindings(  # noqa: C901 - validate and assemble one reg
                 if family == "profile" and config.runtime.profile_schedule_enabled
                 else None,
                 timezone=config.runtime.profile_timezone if family == "profile" else "Asia/Shanghai",
+                source_count_threshold=count_thresholds.get(family),
+                source_cursor_binding_name=binding if family in {"memory", "topic-memory"} else None,
                 pending_provider=None
                 if family == "skill"
                 else SourceProcessingPendingProvider(contexts.database, binding, family),
