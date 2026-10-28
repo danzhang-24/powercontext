@@ -93,6 +93,7 @@ dify/
 │   ├── svc.sh                   # 服务启停(pidfile,不误杀)
 │   ├── verify_embedder.mjs      # 验证 Node embedding 与 Transformers.js 逐条一致
 │   ├── validate_dsl.mjs         # ★ DSL 结构校验(导入前先跑一遍)
+│   ├── cleanroom_check.sh       # ★ 干净环境一键复现(clone → install → setup → seed → 验证)
 │   ├── verify_app.mjs           # ★ 端到端验证样例(9 项)
 │   └── verify_demo.mjs          # ★ 体验入口页面冒烟测试(playwright + 截图)
 ├── reports/                     # 验证证据(JSON)
@@ -111,6 +112,12 @@ npm install --legacy-peer-deps     # seekdb 的可选 peer 依赖带 workspace:*
 npm run setup                      # 拉 all-MiniLM-L6-v2 权重 + onnxruntime-web wasm(ModelScope 优先)
 npm run seed                       # 幂等写入 12 张设定卡
 npm start                          # 监听 0.0.0.0:8788
+```
+
+**一键干净环境复现**(全新 clone → 装依赖 → 拉资源 → seed → 起服务 → 跑验证):
+
+```bash
+bash scripts/cleanroom_check.sh     # 实测 EXIT=0,9/9 通过
 ```
 
 打开 <http://127.0.0.1:8788/> 就是体验入口(数据层闭环 + 规则引擎降级版)。
