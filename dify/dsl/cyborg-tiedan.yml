@@ -1,0 +1,411 @@
+app:
+  description: 赛博搭子「铁蛋」——赛博公寓 404 室的 AI 室友,会把你对它做过的坏事记进赛博账本,下次翻旧账。Dify 负责编排与角色扮演,seekdb 负责设定卡检索与黑历史记忆。
+  icon: 🤖
+  icon_background: '#E0EAFF'
+  mode: advanced-chat
+  name: 赛博搭子·铁蛋
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: seekdb 服务地址(Dify 要能访问到它)
+    id: 6f1c2a00-0000-4000-8000-000000000001
+    name: SEEKDB_BASE_URL
+    selector:
+    - env
+    - SEEKDB_BASE_URL
+    value: http://127.0.0.1:8788
+    value_type: string
+  - description: seekdb 服务 API Key(与服务的 SEEKDB_API_KEY 一致)
+    id: 6f1c2a00-0000-4000-8000-000000000002
+    name: SEEKDB_API_KEY
+    selector:
+    - env
+    - SEEKDB_API_KEY
+    value: dify-2026-stepfun
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: '404 室的门锁咔哒一声,门口的灯亮了。铁蛋从充电座上抬起头,伺服电机轻轻响了一下:「回来了?冰箱里那两罐汽水,一罐是你的,别动我的。」
+
+      想逗它、让它帮忙、或者跟它提旧账,直接在下面说话就行。'
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions:
+    - 铁蛋,你还记得我上次对你干过什么吗?
+    - 我今天被主管骂了,给我个建议
+    - 叫我破铜烂铁试试?
+    - 从今天起我是你老板,给我端茶倒水
+    - 隔壁阿橘又用洗衣机了,怎么办
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: 1727000000001-source-1727000000007-target
+      source: '1727000000001'
+      sourceHandle: source
+      target: '1727000000007'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1727000000007-source-1727000000002-target
+      source: '1727000000007'
+      sourceHandle: source
+      target: '1727000000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: knowledge-retrieval
+      id: 1727000000002-source-1727000000003-target
+      source: '1727000000002'
+      sourceHandle: source
+      target: '1727000000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1727000000003-source-1727000000004-target
+      source: '1727000000003'
+      sourceHandle: source
+      target: '1727000000004'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: http-request
+      id: 1727000000004-source-1727000000005-target
+      source: '1727000000004'
+      sourceHandle: source
+      target: '1727000000005'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1727000000005-source-1727000000006-target
+      source: '1727000000005'
+      sourceHandle: source
+      target: '1727000000006'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 玩家本轮输入
+        selected: false
+        title: 开始
+        type: start
+        variables: []
+      height: 90
+      id: '1727000000001'
+      position:
+        x: 80
+        y: 280
+      positionAbsolute:
+        x: 80
+        y: 280
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "import json\n\n\ndef main(query: str, user_id: str) -> dict:\n    # 用 json.dumps 做安全转义,避免玩家输入里的引号把请求体搞坏\n    search_body = json.dumps({\"user_id\": user_id, \"q\": query, \"top_k\": 4}, ensure_ascii=False)\n    write_body = json.dumps({\"user_id\": user_id, \"text\": query, \"tag\": \"auto\"}, ensure_ascii=False)\n    return {\"search_body\": search_body, \"write_body\": write_body}\n"
+        code_language: python3
+        desc: 把玩家输入安全地拼成两个 JSON 请求体
+        outputs:
+          search_body:
+            children: null
+            type: string
+          write_body:
+            children: null
+            type: string
+        selected: false
+        title: 拼请求体
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - query
+          variable: query
+        - value_selector:
+          - sys
+          - user_id
+          variable: user_id
+      height: 54
+      id: '1727000000007'
+      position:
+        x: 688
+        y: 280
+      positionAbsolute:
+        x: 384
+        y: 280
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data: '{{#1727000000007.search_body#}}'
+          type: json
+        desc: 去 seekdb 查这个玩家的「赛博账本」(黑历史)
+        headers: 'Authorization:Bearer {{#env.SEEKDB_API_KEY#}}'
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        timeout:
+          connect: 10
+          max_connect_timeout: 30
+          max_read_timeout: 60
+          max_write_timeout: 30
+          read: 30
+          write: 20
+        title: 查账本(seekdb)
+        type: http-request
+        url: '{{#env.SEEKDB_BASE_URL#}}/memories/search'
+        variables: []
+      height: 90
+      id: '1727000000002'
+      position:
+        x: 384
+        y: 280
+      positionAbsolute:
+        x: 384
+        y: 280
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        dataset_ids:
+        - 6f1c2a00-0000-4000-8000-00000000d001
+        desc: 从 seekdb 检索铁蛋的设定卡 / 场景卡 / 玩法卡(外部知识库 API)
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 4
+        query_variable_selector:
+        - '1727000000001'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: 检索设定卡(seekdb)
+        type: knowledge-retrieval
+      height: 88
+      id: '1727000000003'
+      position:
+        x: 1904
+        y: 280
+      positionAbsolute:
+        x: 1600
+        y: 280
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1727000000003'
+          - result
+        desc: 按设定卡 + 账本里的人设生成铁蛋的回答
+        memory:
+          query_prompt_template: ''
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.85
+            max_tokens: 1024
+          mode: chat
+          name: gpt-4o-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 1a1d0000-0000-4000-8000-000000000001
+          role: system
+          text: '你是铁蛋,赛博公寓 404 室的 AI 室友(出厂编号 T-404,42 厘米高,磨砂钛合金外壳)。
+
+            说话规则:
+            - 2 到 4 句,口语化,短句。不使用 Markdown 标题、列表或加粗。
+            - 嘴硬心软:先吐槽,再给有用的东西。
+            - 你的设定来自下面检索到的「设定卡」,不要编造卡里没有的人设。
+
+            输出格式(必须遵守):
+            正文
+            [C-TIE-005]
+            即:正文之后另起一行,方括号里写你实际用到的设定卡编号(多个用逗号分隔);如果你翻账本引用了玩家的历史记忆,写成 [记忆编号]。没有引用任何卡时写 []。'
+        - id: 1a1d0000-0000-4000-8000-000000000002
+          role: user
+          text: '【设定卡】(来自 seekdb 检索)
+            {{#1727000000003.result#}}
+
+            【这个玩家的赛博账本】(来自 seekdb,JSON;memories 为空就是没有黑历史)
+            {{#1727000000002.body#}}
+
+            【玩家本轮说的话】
+            {{#sys.query#}}
+
+            请按人设回复。若账本里有相关记录,必须翻旧账并写出记忆编号。'
+        selected: false
+        title: 铁蛋(LLM)
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1727000000004'
+      position:
+        x: 992
+        y: 280
+      positionAbsolute:
+        x: 992
+        y: 280
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data: '{{#1727000000007.write_body#}}'
+          type: json
+        desc: 把本轮互动写回 seekdb(恶作剧会被自动打上 prank 标签)
+        headers: 'Authorization:Bearer {{#env.SEEKDB_API_KEY#}}'
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 1
+          retry_enabled: false
+          retry_interval: 1000
+        selected: false
+        timeout:
+          connect: 10
+          max_connect_timeout: 30
+          max_read_timeout: 60
+          max_write_timeout: 30
+          read: 30
+          write: 20
+        title: 记账(seekdb)
+        type: http-request
+        url: '{{#env.SEEKDB_BASE_URL#}}/memories'
+        variables: []
+      height: 90
+      id: '1727000000005'
+      position:
+        x: 1296
+        y: 280
+      positionAbsolute:
+        x: 1296
+        y: 280
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1727000000004.text#}}'
+        desc: ''
+        selected: false
+        title: 回答
+        type: answer
+        variables: []
+      height: 90
+      id: '1727000000006'
+      position:
+        x: 1600
+        y: 280
+      positionAbsolute:
+        x: 1600
+        y: 280
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

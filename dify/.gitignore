@@ -1,0 +1,10 @@
+# 依赖与构建产物
+node_modules/
+
+# 本地资源(约 250MB):用 `npm run setup` 拉取
+assets/models/
+assets/ort/
+
+# 本地运行时
+*.log
+.DS_Store

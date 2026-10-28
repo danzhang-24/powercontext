@@ -1,0 +1,28 @@
+{
+  "name": "stepfun-dify-kb",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Dify × OceanBase 赛题作品:赛博搭子「铁蛋」—— 会记仇的 AI 室友(Dify 编排 + seekdb 检索与记忆)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "setup": "node scripts/setup_assets.mjs",
+    "start": "node service/src/index.mjs",
+    "seed": "node service/src/seed.mjs",
+    "verify:embedder": "node scripts/verify_embedder.mjs",
+    "verify:app": "node scripts/verify_app.mjs",
+    "validate:dsl": "node scripts/validate_dsl.mjs",
+    "verify": "node scripts/validate_dsl.mjs && node scripts/verify_embedder.mjs && node scripts/verify_app.mjs"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "onnxruntime-web": "1.31.1",
+    "seekdb": "1.4.0"
+  },
+  "devDependencies": {
+    "js-yaml": "^4.1.0",
+    "playwright": "^1.63.0"
+  }
+}
