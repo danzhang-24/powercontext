@@ -710,7 +710,7 @@ SOURCE_LIFECYCLE_NODES_TABLE = Table(
     "pc_source_lifecycle_nodes",
     SHARED_METADATA,
     Column("scope_id", identity_string(MAX_SCOPE_ID_LENGTH), primary_key=True),
-    Column("node_id", identity_string(128), primary_key=True),
+    Column("node_id", identity_string(512), primary_key=True),
     Column("node_kind", identity_string(16), nullable=False),
     Column("binding", _canonical_payload_type(), nullable=False),
     Column("parents", _canonical_payload_type(), nullable=False),

@@ -18,7 +18,10 @@ from __future__ import annotations
 
 import hashlib
 import io
+import json
 import re
+from collections import Counter
+from collections.abc import Sequence
 from typing import Any
 from urllib.parse import quote
 
@@ -192,7 +195,14 @@ def pdf_page_source_id(document_id: str, document_sha256: str, page_number: int)
 
     source_id = f"pdf:{quote(document_id, safe='')}:{document_sha256}:{page_number}"
     if len(source_id) > MAX_SOURCE_ID_LENGTH:
-        raise ValueError(f"PDF page Source identity exceeds {MAX_SOURCE_ID_LENGTH} characters")  # noqa: TRY003
+        identity_digest = hashlib.sha256(
+            json.dumps(
+                (document_id, document_sha256, page_number),
+                ensure_ascii=False,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        source_id = f"pdf:{identity_digest}"
     return source_id
 
 
@@ -208,6 +218,14 @@ async def search_pdf_pages(
     if type(limit) is not int or limit < 1:
         raise ValueError("PDF search limit must be a positive integer")  # noqa: TRY003
 
+    routing_page = await memory.search(
+        SearchMemoryRequest(
+            query=question,
+            mode="fts",
+            limit=min(100, max(limit * 4, 40)),
+        )
+    )
+    document_ids = _pdf_routing_documents(question, routing_page.hits)
     anchor_queries = _pdf_anchor_queries(question)
     query_results: list[tuple[str, list[MemoryCitation]]] = []
     for query in anchor_queries or (question,):
@@ -221,6 +239,8 @@ async def search_pdf_pages(
         citations: list[MemoryCitation] = []
         seen_for_query: set[tuple[str, str, int, str]] = set()
         for hit in page.hits:
+            if document_ids and _pdf_hit_document_id(hit.text) not in document_ids:
+                continue
             identity = (
                 hit.memory_ref.family,
                 hit.memory_ref.artifact_id,
@@ -279,9 +299,67 @@ async def search_pdf_pages(
                     entry_version_id=hit.entry_version_id,
                 )
                 for hit in page.hits
+                if not document_ids or _pdf_hit_document_id(hit.text) in document_ids
             ])
         _append_balanced(fallback_lists, selected, seen, limit)
     return tuple(selected)
+
+
+def _pdf_hit_document_id(text: str) -> str:
+    """Read the document identity prefixed by the PDF page projection."""
+
+    separator = text.find("\n")
+    return text if separator < 0 else text[:separator]
+
+
+def _document_tokens(document_id: str) -> set[str]:
+    return set(re.findall(r"[a-z0-9]+", document_id.casefold()))
+
+
+def _pdf_routing_documents(question: str, hits: Sequence[Any]) -> frozenset[str]:
+    """Infer the best matching PDF document without relying on fixture names."""
+
+    document_hits: Counter[str] = Counter()
+    for hit in hits:
+        document_hits[_pdf_hit_document_id(hit.text)] += 1
+    if len(document_hits) <= 1:
+        return frozenset(document_hits)
+
+    question_tokens = _document_tokens(question)
+    document_tokens = {
+        document_id: _document_tokens(document_id)
+        for document_id in document_hits
+    }
+    token_document_frequency: Counter[str] = Counter()
+    for tokens in document_tokens.values():
+        token_document_frequency.update(tokens)
+
+    routing_stop_words = {"10k", "10q", "8k", "annualreport", "earnings", "pdf"}
+    scores: dict[str, float] = {}
+    for document_id, tokens in document_tokens.items():
+        matched_tokens = (
+            (question_tokens & tokens) - routing_stop_words
+        )
+        scores[document_id] = sum(
+            1.0 / token_document_frequency[token]
+            for token in matched_tokens
+        )
+    best_score = max(scores.values(), default=0.0)
+    if best_score <= 0.0:
+        return frozenset()
+    best_documents = {
+        document_id
+        for document_id, score in scores.items()
+        if score == best_score
+    }
+    if len(best_documents) > 1:
+        most_hits = max(document_hits[document_id] for document_id in best_documents)
+        best_documents = {
+            document_id
+            for document_id in best_documents
+            if document_hits[document_id] == most_hits
+        }
+    return frozenset(best_documents)
 
 
 def _append_balanced(
@@ -316,6 +394,15 @@ def _pdf_anchor_queries(question: str) -> tuple[str, ...]:
     """Route finance questions to stable statement titles before lexical fallback."""
 
     lower = question.casefold()
+    if re.search(r"\b(?:dpo|days payable outstanding|accounts payable)\b", lower):
+        return (
+            "accounts payable inventories",
+            "consolidated statements operations net sales cost of sales",
+        )
+    if re.search(r"\bcapital[- ]intensive\b", lower) or re.search(
+        r"\b(?:capex|capital expenditures?)\b", lower
+    ):
+        return ("capital expenditures purchases property plant equipment",)
     if re.search(r"\b(?:legal|litigation)\b", lower):
         return ("legal matters litigation",)
     if "industry" in lower:
@@ -333,10 +420,15 @@ def _pdf_anchor_queries(question: str) -> tuple[str, ...]:
             "consolidated statements income",
             "consolidated statements cash flows operating activities investing financing",
         )
+    if "drove" in lower and ("revenue" in lower or "margin" in lower):
+        return ("results of operations net revenue change",)
+    if re.search(r"\b(?:year[- ]over[- ]year|change in revenue|revenue change)\b", lower):
+        return (
+            "consolidated statements operations net sales operating income",
+            "results of operations net revenue change",
+        )
     if "gross margin" in lower or "operating margin" in lower:
         return ("consolidated statements income",)
-    if "drove" in lower and ("revenue" in lower or "operating margin" in lower):
-        return ("results of operations net revenue change",)
     if "restructur" in lower:
         return ("restructuring charges",)
     if "acquisition" in lower:

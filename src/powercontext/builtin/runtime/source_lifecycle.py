@@ -31,7 +31,6 @@ from powercontext.sources import SourceRef
 
 if TYPE_CHECKING:
     from powercontext.builtin.runtime.application import BuiltinRuntime
-    from powercontext.builtin.runtime.relational import RelationalContexts
 
 
 class SourceLifecycleError(ValueError):
@@ -139,33 +138,32 @@ class SourceLifecycleService:
         if not isinstance(source_ref, SourceRef):
             raise SourceLifecycleError("source_ref must be a SourceRef")
         binding = _binding("source", source_ref, (), "all", revision)
-        async with self._runtime._context(self.scope_id):
-            async with self._lock, self._runtime._locked(self.scope_id):
-                existing = await self._read_node(node_id)
-                if existing is not None:
-                    if (
-                        existing.kind != "source"
-                        or existing.reference != source_ref
-                        or existing.lifecycle_revision != revision
-                    ):
-                        raise SourceLifecycleError(f"node {node_id!r} is already registered with another binding")
-                    return
-                await self._verify_source(source_ref)
-                async with self._database.transaction() as connection:
-                    await connection.execute(
-                        insert(SOURCE_LIFECYCLE_NODES_TABLE).values(
-                            scope_id=self.scope_id,
-                            node_id=node_id,
-                            node_kind="source",
-                            binding=binding,
-                            parents=b"[]",
-                            policy="all",
-                            available=True,
-                            lifecycle_revision=revision,
-                            event_sequence=0,
-                            event_payload=None,
-                        )
+        async with self._runtime._context(self.scope_id), self._lock, self._runtime._locked(self.scope_id):
+            existing = await self._read_node(node_id)
+            if existing is not None:
+                if (
+                    existing.kind != "source"
+                    or existing.reference != source_ref
+                    or existing.lifecycle_revision != revision
+                ):
+                    raise SourceLifecycleError(f"node {node_id!r} is already registered with another binding")
+                return
+            await self._verify_source(source_ref)
+            async with self._database.transaction() as connection:
+                await connection.execute(
+                    insert(SOURCE_LIFECYCLE_NODES_TABLE).values(
+                        scope_id=self.scope_id,
+                        node_id=node_id,
+                        node_kind="source",
+                        binding=binding,
+                        parents=b"[]",
+                        policy="all",
+                        available=True,
+                        lifecycle_revision=revision,
+                        event_sequence=0,
+                        event_payload=None,
                     )
+                )
 
     async def register_memory(
         self,
@@ -201,45 +199,44 @@ class SourceLifecycleService:
         if not isinstance(event, SourceLifecycleEvent):
             raise SourceLifecycleError("event must be a SourceLifecycleEvent")
         payload = _canonical_json(event.model_dump(mode="json"))
-        async with self._runtime._context(self.scope_id):
-            async with self._lock, self._runtime._locked(self.scope_id):
-                nodes = await self._load_nodes()
-                source = next((node for node in nodes if node.node_id == event.node_id), None)
-                if source is None or source.kind != "source":
-                    raise SourceLifecycleError(f"unknown Source lifecycle node {event.node_id!r}")
-                if source.lifecycle_revision != event.revision:
-                    raise SourceLifecycleError("event revision does not match the registered Source revision")
-                if event.sequence < source.event_sequence:
-                    raise SourceLifecycleError("event sequence must increase monotonically")
-                if event.sequence == source.event_sequence:
-                    if source.event_payload != payload:
-                        raise SourceLifecycleError("event sequence was reused with different content")
-                else:
-                    async with self._database.transaction() as connection:
-                        await connection.execute(
-                            update(SOURCE_LIFECYCLE_NODES_TABLE)
-                            .where(
-                                SOURCE_LIFECYCLE_NODES_TABLE.c.scope_id == self.scope_id,
-                                SOURCE_LIFECYCLE_NODES_TABLE.c.node_id == event.node_id,
-                            )
-                            .values(
-                                available=event.available,
-                                event_sequence=event.sequence,
-                                event_payload=payload,
-                            )
+        async with self._runtime._context(self.scope_id), self._lock, self._runtime._locked(self.scope_id):
+            nodes = await self._load_nodes()
+            source = next((node for node in nodes if node.node_id == event.node_id), None)
+            if source is None or source.kind != "source":
+                raise SourceLifecycleError(f"unknown Source lifecycle node {event.node_id!r}")
+            if source.lifecycle_revision != event.revision:
+                raise SourceLifecycleError("event revision does not match the registered Source revision")
+            if event.sequence < source.event_sequence:
+                raise SourceLifecycleError("event sequence must increase monotonically")
+            if event.sequence == source.event_sequence:
+                if source.event_payload != payload:
+                    raise SourceLifecycleError("event sequence was reused with different content")
+            else:
+                async with self._database.transaction() as connection:
+                    await connection.execute(
+                        update(SOURCE_LIFECYCLE_NODES_TABLE)
+                        .where(
+                            SOURCE_LIFECYCLE_NODES_TABLE.c.scope_id == self.scope_id,
+                            SOURCE_LIFECYCLE_NODES_TABLE.c.node_id == event.node_id,
                         )
-                    nodes = await self._load_nodes()
-                states = _effective_availability(nodes)
-                await self._persist_availability(nodes, states)
-                context = await self._runtime._provider.get(self.scope_id)
-                await self._sync_memory(context, nodes, states)
-                return sorted(node_id for node_id, available in states.items() if available)
+                        .values(
+                            available=event.available,
+                            event_sequence=event.sequence,
+                            event_payload=payload,
+                        )
+                    )
+                nodes = await self._load_nodes()
+            states = _effective_availability(nodes)
+            await self._persist_availability(nodes, states)
+            context = await self._runtime._provider.get(self.scope_id)
+            await self._sync_memory(context, nodes, states)
+            return sorted(node_id for node_id, available in states.items() if available)
 
     async def resolve(self, node_id: str, /, *, purpose: str) -> Reference:
         """Resolve an original reference for generation or historical audit."""
 
         _require_node_id(node_id)
-        if purpose not in {"generation", "audit"}:
+        if not isinstance(purpose, str) or purpose not in {"generation", "audit"}:
             raise SourceLifecycleError(f"unknown lifecycle purpose {purpose!r}")
         nodes = await self._load_nodes()
         node = next((candidate for candidate in nodes if candidate.node_id == node_id), None)
@@ -264,55 +261,57 @@ class SourceLifecycleService:
         if not isinstance(reference, expected_type):
             raise SourceLifecycleError(f"{kind} registration requires an exact {expected_type.__name__}")
         binding = _binding(kind, reference, parent_ids, policy, None)
-        async with self._runtime._context(self.scope_id) as context:
-            async with self._lock, self._runtime._locked(self.scope_id):
-                existing = await self._read_node(node_id)
-                if existing is not None:
-                    if (
-                        existing.kind != kind
-                        or existing.reference != reference
-                        or existing.parents != parent_ids
-                        or existing.policy != policy
-                    ):
-                        raise SourceLifecycleError(f"node {node_id!r} is already registered with another binding")
-                    nodes = await self._load_nodes()
-                    await self._sync_memory(context, nodes, _effective_availability(nodes))
-                    return
+        async with self._runtime._context(self.scope_id) as context, self._lock, self._runtime._locked(self.scope_id):
+            existing = await self._read_node(node_id)
+            if existing is not None:
+                if (
+                    existing.kind != kind
+                    or existing.reference != reference
+                    or existing.parents != parent_ids
+                    or existing.policy != policy
+                ):
+                    raise SourceLifecycleError(f"node {node_id!r} is already registered with another binding")
                 nodes = await self._load_nodes()
-                by_id = {node.node_id: node for node in nodes}
-                missing = tuple(parent for parent in parent_ids if parent not in by_id)
-                if missing:
-                    raise SourceLifecycleError(f"missing lifecycle parents: {', '.join(missing)}")
-                await self._verify_reference(context, reference)
-                parents_state = _effective_availability(nodes)
-                available = (
-                    all(parents_state[parent] for parent in parent_ids)
-                    if policy == "all"
-                    else any(parents_state[parent] for parent in parent_ids)
-                )
-                async with self._database.transaction() as connection:
-                    await connection.execute(
-                        insert(SOURCE_LIFECYCLE_NODES_TABLE).values(
-                            scope_id=self.scope_id,
-                            node_id=node_id,
-                            node_kind=kind,
-                            binding=binding,
-                            parents=_canonical_json(list(parent_ids)),
-                            policy=policy,
-                            available=available,
-                            lifecycle_revision=None,
-                            event_sequence=0,
-                            event_payload=None,
-                        )
+                await self._sync_memory(context, nodes, _effective_availability(nodes))
+                return
+            nodes = await self._load_nodes()
+            by_id = {node.node_id: node for node in nodes}
+            missing = tuple(parent for parent in parent_ids if parent not in by_id)
+            if missing:
+                raise SourceLifecycleError(f"missing lifecycle parents: {', '.join(missing)}")
+            await self._verify_reference(context, reference)
+            parents_state = _effective_availability(nodes)
+            available = (
+                all(parents_state[parent] for parent in parent_ids)
+                if policy == "all"
+                else any(parents_state[parent] for parent in parent_ids)
+            )
+            async with self._database.transaction() as connection:
+                await connection.execute(
+                    insert(SOURCE_LIFECYCLE_NODES_TABLE).values(
+                        scope_id=self.scope_id,
+                        node_id=node_id,
+                        node_kind=kind,
+                        binding=binding,
+                        parents=_canonical_json(list(parent_ids)),
+                        policy=policy,
+                        available=available,
+                        lifecycle_revision=None,
+                        event_sequence=0,
+                        event_payload=None,
                     )
-                nodes = await self._load_nodes()
-                states = _effective_availability(nodes)
-                await self._persist_availability(nodes, states)
-                await self._sync_memory(context, nodes, states)
+                )
+            nodes = await self._load_nodes()
+            states = _effective_availability(nodes)
+            await self._persist_availability(nodes, states)
+            await self._sync_memory(context, nodes, states)
 
     async def _verify_source(self, source_ref: SourceRef) -> None:
-        async with self._database.transaction() as connection:
-            await self._runtime._provider.repositories.sources.get(connection, self.scope_id, source_ref)
+        try:
+            async with self._database.transaction() as connection:
+                await self._runtime._provider.repositories.sources.get(connection, self.scope_id, source_ref)
+        except Exception as error:
+            raise SourceLifecycleError("registered Source does not exist or is unreadable") from error
 
     async def _verify_reference(self, context: Any, reference: Reference) -> None:
         try:
@@ -446,12 +445,17 @@ def _decode_node(row: Any) -> _Node:
 
 
 def _effective_availability(nodes: tuple[_Node, ...]) -> dict[str, bool]:
-    states = {node.node_id: node.available if node.kind == "source" else False for node in nodes}
+    states = {
+        node.node_id: node.available
+        for node in nodes
+        if node.kind == "source"
+    }
+    resolved = set(states)
     unresolved = {node.node_id for node in nodes if node.kind != "source"}
     while unresolved:
         progressed = False
         for node in nodes:
-            if node.node_id not in unresolved or any(parent not in states for parent in node.parents):
+            if node.node_id not in unresolved or any(parent not in resolved for parent in node.parents):
                 continue
             states[node.node_id] = (
                 all(states[parent] for parent in node.parents)
@@ -459,6 +463,7 @@ def _effective_availability(nodes: tuple[_Node, ...]) -> dict[str, bool]:
                 else any(states[parent] for parent in node.parents)
             )
             unresolved.remove(node.node_id)
+            resolved.add(node.node_id)
             progressed = True
         if not progressed:
             raise SourceLifecycleError("lifecycle dependencies are missing or cyclic")
@@ -490,8 +495,8 @@ def _canonical_json(value: object) -> bytes:
 def _require_node_id(node_id: str) -> None:
     if not isinstance(node_id, str) or not node_id.strip():
         raise SourceLifecycleError("node_id must be a non-empty, non-whitespace string")
-    if len(node_id) > 128:
-        raise SourceLifecycleError("node_id must not exceed 128 characters")
+    if len(node_id) > 512:
+        raise SourceLifecycleError("node_id must not exceed 512 characters")
 
 
 def _require_revision(revision: int) -> None:
@@ -500,12 +505,14 @@ def _require_revision(revision: int) -> None:
 
 
 def _validate_parents(node_id: str, parents: tuple[str, ...], policy: Policy) -> tuple[str, ...]:
-    if policy not in {"all", "any"}:
+    if not isinstance(policy, str) or policy not in {"all", "any"}:
         raise SourceLifecycleError("policy must be 'all' or 'any'")
     if not isinstance(parents, tuple) or not parents:
         raise SourceLifecycleError("a derived lifecycle node requires at least one parent")
     if any(not isinstance(parent, str) or not parent.strip() for parent in parents):
         raise SourceLifecycleError("parent node ids must be non-empty strings")
+    if any(len(parent) > 512 for parent in parents):
+        raise SourceLifecycleError("parent node ids must not exceed 512 characters")
     if len(set(parents)) != len(parents):
         raise SourceLifecycleError("parent node ids must be unique")
     if node_id in parents:
