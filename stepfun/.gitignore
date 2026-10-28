@@ -1,0 +1,12 @@
+# 依赖与构建产物
+node_modules/
+web/dist/
+data/seekdb/
+
+# 端侧模型权重(约 150MB):用 `npm run setup` / `npm run model:fetch` 拉取
+web/public/models/
+web/public/ort/
+
+# 本地运行时
+*.log
+.DS_Store

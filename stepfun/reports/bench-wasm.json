@@ -1,0 +1,88 @@
+{
+  "env": {
+    "backendRequested": "wasm",
+    "corpusDocs": 12,
+    "warmRepeats": 3,
+    "querySet": 8,
+    "repeat": 3,
+    "seekdb": {
+      "ok": true,
+      "mode": "server",
+      "seekdbVersion": "5.7.25-OceanBase seekdb-v1.4.0.0",
+      "collection": "kb_documents",
+      "dimension": 384,
+      "analyzer": "ik",
+      "fusion": "RRF (DBMS_HYBRID_SEARCH)",
+      "docCount": 12,
+      "uptimeMs": 5710982
+    },
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "cores": 2,
+    "webgpu": {
+      "supported": false,
+      "reason": "没有可用 adapter"
+    }
+  },
+  "runs": [
+    {
+      "dtype": "fp32",
+      "backend": "wasm",
+      "fellBack": false,
+      "modelBytes": 90387606,
+      "modelLoadMs": 7492.1,
+      "modelDownloadMs": 1003,
+      "coldEmbedMs": 7169.9,
+      "warmEmbedMs": 2855.4,
+      "embedThroughputDocsPerSec": 4.2,
+      "writeTotalMs": 842,
+      "seekdbWriteMsMedian": 32,
+      "indexRefreshMsMedian": 601.2,
+      "queryEmbedMsMedian": 27.8,
+      "seekdbSearchMsMedian": 7.47,
+      "seekdbSearchMsP95": 25.35,
+      "endToEndMsMedian": 51,
+      "endToEndMsP95": 117,
+      "samples": 24
+    },
+    {
+      "dtype": "fp16",
+      "backend": "wasm",
+      "fellBack": false,
+      "modelBytes": 45297825,
+      "modelLoadMs": 7261.4,
+      "modelDownloadMs": 905.1,
+      "coldEmbedMs": 12537.4,
+      "warmEmbedMs": 2929.2,
+      "embedThroughputDocsPerSec": 4.1,
+      "writeTotalMs": 557,
+      "seekdbWriteMsMedian": 32.5,
+      "indexRefreshMsMedian": 502.5,
+      "queryEmbedMsMedian": 29.5,
+      "seekdbSearchMsMedian": 5.95,
+      "seekdbSearchMsP95": 8.65,
+      "endToEndMsMedian": 48,
+      "endToEndMsP95": 94,
+      "samples": 24
+    },
+    {
+      "dtype": "q8",
+      "backend": "wasm",
+      "fellBack": false,
+      "modelBytes": 22972370,
+      "modelLoadMs": 5490.5,
+      "modelDownloadMs": 836.3,
+      "coldEmbedMs": 7123.3,
+      "warmEmbedMs": 1674.2,
+      "embedThroughputDocsPerSec": 7.17,
+      "writeTotalMs": 643,
+      "seekdbWriteMsMedian": 33.6,
+      "indexRefreshMsMedian": 601.2,
+      "queryEmbedMsMedian": 20.6,
+      "seekdbSearchMsMedian": 5.95,
+      "seekdbSearchMsP95": 16.95,
+      "endToEndMsMedian": 48,
+      "endToEndMsP95": 115,
+      "samples": 24
+    }
+  ]
+}
