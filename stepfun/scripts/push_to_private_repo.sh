@@ -31,10 +31,20 @@ REMOTE="https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${GITHU
 
 git remote remove origin 2>/dev/null || true
 git remote add origin "$REMOTE"
+# 部分网络下需要显式指定 TLS 版本 / 关闭 HTTP2,否则握手会失败
+git config http.sslVersion tlsv1.2 || true
+git config http.postBuffer 524288000 || true
 git checkout "$BRANCH" 2>/dev/null || git checkout -b "$BRANCH"
 git add -A
 git commit -m "feat(stepfun): 端侧 embedding + seekdb 混合检索迷你知识库" || true
-git push -u origin "$BRANCH"
+# 某些网络环境下 git 的 TLS 握手会偶发失败(gnutls_handshake),自动重试
+for i in 1 2 3 4 5; do
+  echo "push 尝试 $i/5 ..."
+  if git -c http.postBuffer=524288000 push -u origin "$BRANCH"; then
+    break
+  fi
+  sleep 5
+done
 
 echo
 echo "推送完成:$BRANCH -> $GITHUB_USER/$GITHUB_REPO"
