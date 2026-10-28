@@ -34,6 +34,9 @@ git remote add origin "$REMOTE"
 # 部分网络下需要显式指定 TLS 版本 / 关闭 HTTP2,否则握手会失败
 git config http.sslVersion tlsv1.2 || true
 git config http.postBuffer 524288000 || true
+# 部分网络下需要显式指定 TLS 版本 / 关闭 HTTP2,否则握手会失败
+git config http.sslVersion tlsv1.2 || true
+git config http.postBuffer 524288000 || true
 git checkout "$BRANCH" 2>/dev/null || git checkout -b "$BRANCH"
 git add -A
 git commit -m "feat(stepfun): 端侧 embedding + seekdb 混合检索迷你知识库" || true
