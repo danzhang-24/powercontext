@@ -101,7 +101,20 @@ def run_assistant(
     diff = extract_diff(chat.content)
     applied: list[str] = []
     if apply_patch and diff:
-        applied = apply_unified_diff(Path(bundle.project_dir), diff)
+        try:
+            applied = apply_unified_diff(Path(bundle.project_dir), diff)
+        except ValueError as exc:
+            # 同一个补丁重复应用时，上下文一定对不上。与其丢一个看不懂的
+            # "上下文不匹配"，不如告诉调用方大概该怎么办。
+            if _patch_already_applied(Path(bundle.project_dir), diff):
+                raise ValueError(
+                    f"{exc}\n"
+                    "看起来这个补丁已经应用过了（重复执行）。可以先重置工程再跑：\n"
+                    "  python -m sddctx reset\n"
+                    "  python -m sddctx demo --reset ...\n"
+                    "或者加 --skip-apply 只做检索与验证。"
+                ) from exc
+            raise
     return AssistantResult(
         task_id=bundle.task_id,
         prompt=prompt,
@@ -125,6 +138,22 @@ class _Hunk:
     old_start: int
     old_lines: list[str]
     new_lines: list[str]
+
+
+
+def _patch_already_applied(project_dir: Path, diff_text: str) -> bool:
+    """判断补丁的新增内容是否已经出现在目标文件里。"""
+    files = _parse_diff(diff_text)
+    for relative, hunks in files.items():
+        target = project_dir / relative
+        if not target.is_file():
+            continue
+        content = target.read_text(encoding="utf-8")
+        for hunk in hunks:
+            added = [line[1:] for line in hunk.lines if line.startswith("+")]
+            if added and all(line in content for line in added):
+                return True
+    return False
 
 
 def apply_unified_diff(project_dir: Path, diff_text: str) -> list[str]:

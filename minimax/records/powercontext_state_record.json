@@ -1,9 +1,9 @@
 {
   "task_id": "T-1",
   "powercontext": {
-    "base_url": "http://127.0.0.1:8123",
+    "base_url": "http://127.0.0.1:8000",
     "scope_id": "sddctx:order-discount",
-    "resolved_scope_id": "scp_7aanezv0fgw2faexqjxnkhh7pa",
+    "resolved_scope_id": "scp_2cjvwq9x18ajg128q9hcgrkvjs",
     "api": "HTTP API"
   },
   "saved": {
@@ -19,53 +19,53 @@
         {
           "phase": "before",
           "suite": "target",
-          "command": "/home/zhangdan/pc2026/mmxenv/bin/python -m pytest -p no:cacheprovider -q -m target",
+          "command": "/workspace/pc/minimax/.venv/bin/python -m pytest -p no:cacheprovider -q -m target",
           "exit_code": 1,
           "passed": 0,
           "failed": 4,
           "errored": 0,
-          "summary": "4 failed, 6 deselected in 0.02s",
-          "code_version": "d647275c308e+content:00421e725ebb"
+          "summary": "4 failed, 6 deselected in 0.12s",
+          "code_version": "f7971538e037+content:00421e725ebb"
         },
         {
           "phase": "before",
           "suite": "regression",
-          "command": "/home/zhangdan/pc2026/mmxenv/bin/python -m pytest -p no:cacheprovider -q -m regression",
+          "command": "/workspace/pc/minimax/.venv/bin/python -m pytest -p no:cacheprovider -q -m regression",
           "exit_code": 0,
           "passed": 6,
           "failed": 0,
           "errored": 0,
-          "summary": "6 passed, 4 deselected in 0.01s",
-          "code_version": "d647275c308e+content:00421e725ebb"
+          "summary": "6 passed, 4 deselected in 0.06s",
+          "code_version": "f7971538e037+content:00421e725ebb"
         },
         {
           "phase": "after",
           "suite": "target",
-          "command": "/home/zhangdan/pc2026/mmxenv/bin/python -m pytest -p no:cacheprovider -q -m target",
+          "command": "/workspace/pc/minimax/.venv/bin/python -m pytest -p no:cacheprovider -q -m target",
           "exit_code": 0,
           "passed": 4,
           "failed": 0,
           "errored": 0,
-          "summary": "4 passed, 6 deselected in 0.01s",
-          "code_version": "d647275c308e+content:e168b3b33781"
+          "summary": "4 passed, 6 deselected in 0.11s",
+          "code_version": "f7971538e037+content:e168b3b33781"
         },
         {
           "phase": "after",
           "suite": "regression",
-          "command": "/home/zhangdan/pc2026/mmxenv/bin/python -m pytest -p no:cacheprovider -q -m regression",
+          "command": "/workspace/pc/minimax/.venv/bin/python -m pytest -p no:cacheprovider -q -m regression",
           "exit_code": 0,
           "passed": 6,
           "failed": 0,
           "errored": 0,
-          "summary": "6 passed, 4 deselected in 0.02s",
-          "code_version": "d647275c308e+content:e168b3b33781"
+          "summary": "6 passed, 4 deselected in 0.07s",
+          "code_version": "f7971538e037+content:e168b3b33781"
         }
       ],
       "artifacts": [
         "records/minimax_dev_record.md",
         "records/db_query_record.md"
       ],
-      "updated_at": "2026-10-28T04:14:40+00:00"
+      "updated_at": "2026-10-28T16:42:01+00:00"
     },
     "response": {
       "memory": {
@@ -80,12 +80,12 @@
             "artifact_id": "memory",
             "revision": 1
           },
-          "entry_id": "mem_ent_88288b3b6c974c4e8135890ab537517d",
-          "entry_version_id": "mem_ver_2fc9bc54efbf4679a302125def134fd4"
+          "entry_id": "mem_ent_9e5486ffe35b4aa4b224dfcfd3c33a3a",
+          "entry_version_id": "mem_ver_dfdee8c953a74bc29979e50b17da52ee"
         },
         "version": 1,
         "kind": "sddctx.task_state",
-        "text": "sddctx-state v1\ntask: T-1\nphase: after\nupdated_at: 2026-10-28T04:14:40+00:00\ndone:\n- 导入资料：规格 4 条 / 代码 7 个 / 测试 10 条\n- MiniMax 完成代码修改：src/order_discount/engine.py\npending:\nartifacts:\n- records/minimax_dev_record.md\n- records/db_query_record.md\nverifications:\n- phase=before suite=target exit_code=1 passed=0 failed=4 errored=0 code_version=d647275c308e+content:00421e725ebb summary=4 failed, 6 deselected in 0.02s\n- phase=before suite=regression exit_code=0 passed=6 failed=0 errored=0 code_version=d647275c308e+content:00421e725ebb summary=6 passed, 4 deselected in 0.01s\n- phase=after suite=target exit_code=0 passed=4 failed=0 errored=0 code_version=d647275c308e+content:e168b3b33781 summary=4 passed, 6 deselected in 0.01s\n- phase=after suite=regression exit_code=0 passed=6 failed=0 errored=0 code_version=d647275c308e+content:e168b3b33781 summary=6 passed, 4 deselected in 0.02s",
+        "text": "sddctx-state v1\ntask: T-1\nphase: after\nupdated_at: 2026-10-28T16:42:01+00:00\ndone:\n- 导入资料：规格 4 条 / 代码 7 个 / 测试 10 条\n- MiniMax 完成代码修改：src/order_discount/engine.py\npending:\nartifacts:\n- records/minimax_dev_record.md\n- records/db_query_record.md\nverifications:\n- phase=before suite=target exit_code=1 passed=0 failed=4 errored=0 code_version=f7971538e037+content:00421e725ebb summary=4 failed, 6 deselected in 0.12s\n- phase=before suite=regression exit_code=0 passed=6 failed=0 errored=0 code_version=f7971538e037+content:00421e725ebb summary=6 passed, 4 deselected in 0.06s\n- phase=after suite=target exit_code=0 passed=4 failed=0 errored=0 code_version=f7971538e037+content:e168b3b33781 summary=4 passed, 6 deselected in 0.11s\n- phase=after suite=regression exit_code=0 passed=6 failed=0 errored=0 code_version=f7971538e037+content:e168b3b33781 summary=6 passed, 4 deselected in 0.07s",
         "state": "active",
         "source_refs": [],
         "artifact_refs": []
@@ -108,8 +108,8 @@
         "passed": 0,
         "failed": 4,
         "errored": 0,
-        "summary": "4 failed, 6 deselected in 0.02s",
-        "code_version": "d647275c308e+content:00421e725ebb"
+        "summary": "4 failed, 6 deselected in 0.12s",
+        "code_version": "f7971538e037+content:00421e725ebb"
       },
       {
         "phase": "before",
@@ -118,8 +118,8 @@
         "passed": 6,
         "failed": 0,
         "errored": 0,
-        "summary": "6 passed, 4 deselected in 0.01s",
-        "code_version": "d647275c308e+content:00421e725ebb"
+        "summary": "6 passed, 4 deselected in 0.06s",
+        "code_version": "f7971538e037+content:00421e725ebb"
       },
       {
         "phase": "after",
@@ -128,8 +128,8 @@
         "passed": 4,
         "failed": 0,
         "errored": 0,
-        "summary": "4 passed, 6 deselected in 0.01s",
-        "code_version": "d647275c308e+content:e168b3b33781"
+        "summary": "4 passed, 6 deselected in 0.11s",
+        "code_version": "f7971538e037+content:e168b3b33781"
       },
       {
         "phase": "after",
@@ -138,14 +138,14 @@
         "passed": 6,
         "failed": 0,
         "errored": 0,
-        "summary": "6 passed, 4 deselected in 0.02s",
-        "code_version": "d647275c308e+content:e168b3b33781"
+        "summary": "6 passed, 4 deselected in 0.07s",
+        "code_version": "f7971538e037+content:e168b3b33781"
       }
     ],
     "artifacts": [
       "records/minimax_dev_record.md",
       "records/db_query_record.md"
     ],
-    "updated_at": "2026-10-28T04:14:40+00:00"
+    "updated_at": "2026-10-28T16:42:01+00:00"
   }
 }

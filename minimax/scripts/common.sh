@@ -3,6 +3,15 @@
 set -euo pipefail
 
 MINIMAX_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# 运行期目录配置由 scripts/setup.sh 生成（嵌入式 seekdb 必须在本地文件系统上）。
+# 这里 source 进来，让所有脚本共用同一个可用的运行期目录。
+if [ -f "$MINIMAX_DIR/scripts/runtime.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "$MINIMAX_DIR/scripts/runtime.env"
+  set +a
+fi
 PROJECT_DIR="$MINIMAX_DIR/demo_project"
 RECORDS_DIR="$MINIMAX_DIR/records"
 LOGS_DIR="$PROJECT_DIR/logs"

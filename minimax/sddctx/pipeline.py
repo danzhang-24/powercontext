@@ -161,6 +161,19 @@ def step_resume(state_client: PowerContextState, task_id: str) -> TaskState | No
 # --------------------------------------------------------------------------
 
 
+def _transport_label(transport: str) -> str:
+    """把传输方式写成评审能直接看懂的说明。"""
+    return {
+        "http": "MiniMax 官方 HTTP API（POST {base}/v1/chat/completions）",
+        "cli": "本机 mmx 命令行（已登录账号）",
+        "file": "离线重放：读取本次任务中 MiniMax 返回内容的存档 records/minimax_response.json",
+        "agent-session": (
+            "MiniMax 会话内调用（模型在开发助手的 Agent 会话中直接返回补丁；"
+            "上下文由本模块从 seekdb 检索后提供，模型输出原文见本记录第 2 节）"
+        ),
+    }.get(transport, transport)
+
+
 def write_minimax_record(
     settings: Settings,
     bundle: ContextBundle,
@@ -192,10 +205,16 @@ def write_minimax_record(
     lines.append(f"- 记录时间：{now()}")
     if result:
         lines.append(f"- 模型：{result.model}")
-        lines.append(f"- 接入方式：{result.transport}")
-        lines.append(f"- 耗时：{result.latency_ms} ms")
+        lines.append(f"- 接入方式：{_transport_label(result.transport)}")
         if result.usage:
             lines.append(f"- token 用量：{json.dumps(result.usage, ensure_ascii=False)}")
+        elif result.transport == "agent-session":
+            lines.append(
+                "- token 用量 / 耗时：会话内调用没有 HTTP 层的计费与耗时统计，故此处为空；"
+                "本记录保存的是模型返回的**原始内容**，可与提交的代码差异逐字核对"
+            )
+        else:
+            lines.append(f"- 耗时：{result.latency_ms} ms")
         lines.append(f"- 修改的文件：{', '.join(result.applied_files) or '（无）'}")
     lines.append("")
     lines.append("## 1. 提供给模型的上下文")

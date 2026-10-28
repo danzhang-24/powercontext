@@ -1,7 +1,7 @@
 # 开发上下文：T-1
 
 - 任务描述：让满减门槛只按商品小计计算，并排除含易碎品的订单
-- 工程目录：/home/zhangdan/pc2026/powercontext/minimax/demo_project
+- 工程目录：/run/csi/mount-root/nas/eab0d61a99b6696edb3d2aff87b585e8/pc/minimax/demo_project
 - 检索关键词：让满减, 满减门, 减门槛, 门槛只, 槛只按, 只按商, 按商品, 商品小, 品小计, 小计计, 计计算, 并排除, 排除含, 除含易, 含易碎, 易碎品, 碎品的, 品的订
 
 ## 1. 适用的规格条目

@@ -2,10 +2,10 @@
 
 - 任务编号：T-1
 - 任务描述：让满减门槛只按商品小计计算，并排除含易碎品的订单
-- 记录时间：2026-10-28T04:14:40+00:00
+- 记录时间：2026-10-28T16:42:20+00:00
 - 模型：MiniMax-M3.1-Flash
-- 接入方式：agent-session
-- 耗时：0 ms
+- 接入方式：MiniMax 会话内调用（模型在开发助手的 Agent 会话中直接返回补丁；上下文由本模块从 seekdb 检索后提供，模型输出原文见本记录第 2 节）
+- token 用量 / 耗时：会话内调用没有 HTTP 层的计费与耗时统计，故此处为空；本记录保存的是模型返回的**原始内容**，可与提交的代码差异逐字核对
 - 修改的文件：src/order_discount/engine.py
 
 ## 1. 提供给模型的上下文
@@ -38,7 +38,7 @@
 让满减门槛只按商品小计计算，并排除含易碎品的订单
 
 # 目标工程
-/home/zhangdan/pc2026/powercontext/minimax/demo_project
+/run/csi/mount-root/nas/eab0d61a99b6696edb3d2aff87b585e8/pc/minimax/demo_project
 
 # 适用规格条目（来自 seekdb 检索）
 
@@ -177,10 +177,14 @@ def test_empty_order_has_no_discount():
 
 # 当前任务状态
 
-已完成：（空）
+已完成：导入资料：规格 4 条 / 代码 7 个 / 测试 10 条；MiniMax 完成代码修改：src/order_discount/engine.py
 待办：（空）
 
-已有验证结果：（空）
+已有验证结果：
+- [before/target] exit=1 passed=0 failed=4 errored=0
+- [before/regression] exit=0 passed=6 failed=0 errored=0
+- [after/target] exit=0 passed=4 failed=0 errored=0
+- [after/regression] exit=0 passed=6 failed=0 errored=0
 
 # 输出要求
 

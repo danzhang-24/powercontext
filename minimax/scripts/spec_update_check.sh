@@ -11,7 +11,9 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 SPEC="$PROJECT_DIR/specs/order_discount.spec.md"
-WORK="$MINIMAX_DIR/runtime/speccheck"
+# 独立工作目录必须落在支持 O_DIRECT 的本地文件系统上，否则嵌入式 seekdb 打不开库。
+# SDDCTX_HOME 由 scripts/runtime.env 提供（setup.sh 探测得到）。
+WORK="${SDDCTX_HOME:-$MINIMAX_DIR/runtime}/speccheck"
 OUT="$RECORDS_DIR/spec_update_record.md"
 NEW_MARK="易碎品订单即使满 600 元也不享受任何满减减免"
 OLD_MARK="运费不改变这一结论"

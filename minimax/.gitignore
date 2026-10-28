@@ -1,6 +1,10 @@
 # 运行期数据：嵌入式 seekdb 数据目录、临时工作区（可随时重建）。
 runtime/
 
+# Python 虚拟环境（由 scripts/setup.sh 创建）。
+.venv/
+.venv-powercontext/
+
 # Python 缓存与测试缓存。
 __pycache__/
 *.pyc
@@ -8,3 +12,7 @@ __pycache__/
 
 # 演示工程运行产物。
 demo_project/logs/*.tmp
+
+# 由 scripts/setup.sh 生成，含本机绝对路径（每次 setup 都会重新生成）。
+scripts/runtime.env
+scripts/powercontext.env

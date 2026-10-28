@@ -1,10 +1,10 @@
 # 阶段：before
 # 套件：target
-# 命令：/home/zhangdan/pc2026/mmxenv/bin/python -m pytest -p no:cacheprovider -q -m target
+# 命令：/workspace/pc/minimax/.venv/bin/python -m pytest -p no:cacheprovider -q -m target
 # 退出码：1
 # 统计：通过 0，失败 4，错误 0
-# 代码版本：d647275c308e+content:00421e725ebb
-# 汇总：4 failed, 6 deselected in 0.02s
+# 代码版本：f7971538e037+content:00421e725ebb
+# 汇总：4 failed, 6 deselected in 0.16s
 
 ----- stdout -----
 FFFF                                                                     [100%]
@@ -58,7 +58,7 @@ FAILED tests/test_order_discount.py::test_threshold_ignores_shipping - Assert...
 FAILED tests/test_order_discount.py::test_threshold_boundary_excludes_subtotal_below_100
 FAILED tests/test_order_discount.py::test_fragile_order_is_excluded_from_tier_discount
 FAILED tests/test_order_discount.py::test_fragile_order_with_shipping_stays_excluded
-4 failed, 6 deselected in 0.02s
+4 failed, 6 deselected in 0.16s
 
 ----- stderr -----
 

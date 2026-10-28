@@ -30,6 +30,7 @@ from .pipeline import (
     step_verify,
     write_db_record,
     write_minimax_record,
+    _transport_label,
     write_state_record,
 )
 from .reset import reset_project
@@ -239,7 +240,7 @@ def _cmd_apply(args: argparse.Namespace, settings, state_client: PowerContextSta
         [
             "MiniMax 已返回补丁。",
             f"- 模型：{result.model}",
-            f"- 接入方式：{result.transport}",
+            f"- 接入方式：{_transport_label(result.transport)}",
             f"- 修改文件：{', '.join(result.applied_files) or '（未应用）'}",
             f"- 补丁长度：{len(result.diff)} 字符",
             f"- 记录：{settings.records_dir / 'minimax_dev_record.md'}",

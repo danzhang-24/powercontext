@@ -5,6 +5,7 @@
 运行功能与回归测试，再把任务状态存入 **PowerContext**，模块重启后读取并复用。
 
 - 任务描述与验收要求：[`docs/validation-sample.md`](docs/validation-sample.md)
+- **六项必做项逐项对照与复现命令**：[`docs/acceptance-checklist.md`](docs/acceptance-checklist.md)
 - 运行说明（依赖版本、配置、入口、测试命令、已知限制）：[`docs/run-guide.md`](docs/run-guide.md)
 - 一页技术说明（模块结构、上下文选择方式、技术分工）：[`docs/tech-design.md`](docs/tech-design.md)
 
@@ -14,9 +15,18 @@
 
 ```bash
 cd minimax
-bash scripts/setup.sh        # 安装依赖（sddctx + PowerContext Server），生成服务端配置
-bash scripts/run_demo.sh     # 端到端演示，产出记录与日志
+bash scripts/setup.sh          # 安装依赖（sddctx + PowerContext Server），生成服务端配置
+bash scripts/run_demo.sh       # 端到端演示，产出记录与日志
+bash scripts/acceptance_check.sh   # 逐项自检赛题六项必做项（日志写入 records/acceptance_run.log）
 ```
+
+`setup.sh` 会顺手处理两件容易卡住的事：
+
+1. **powercontext 的 extras**——它把 FastMCP / typer / pylibseekdb 等运行期依赖放在
+   extras 里，基础包装不全，`powercontext server run` 会直接报 `ModuleNotFoundError`。
+2. **运行期目录探测**——嵌入式 seekdb 底层用 O_DIRECT 直写，数据目录必须在本地
+   文件系统上（NFS 会报 `seekdb_open failed: code=-1`）。脚本会探测候选目录并把
+   可用的那个写进 `scripts/runtime.env`；也可以用 `SDDCTX_HOME=/本地路径` 指定。
 
 单独复现验收要点：
 
@@ -77,12 +87,18 @@ python -m sddctx <子命令> [全局参数]
 
 | 技术 | 接入方式 | 版本 |
 | --- | --- | --- |
-| MiniMax | HTTP `POST {base}/v1/chat/completions`（默认 `MiniMax-M3`）；另支持 `mmx` CLI 与离线重放 | 平台接口 |
+| MiniMax | HTTP `POST {base}/v1/chat/completions`（默认 `MiniMax-M3`）；另支持 `mmx` CLI 与离线重放 | 平台接口；本次记录为 `MiniMax-M3.1-Flash` |
 | seekdb | 嵌入式 `pylibseekdb`；设置 `SDDCTX_DB_DSN` 可切换到外部 seekdb / OceanBase | 1.4.0.post1 |
 | PowerContext | HTTP API：`/v1/scopes`、`/v1/memory/remember`、`/v1/memory/search` | 1.2.0 |
 
 凭据一律通过环境变量或本地凭据文件注入，仓库里不存放任何真实密钥；
 `scripts/powercontext.env` 与配置示例均为占位值。
+
+> **本次提交的 MiniMax 调用方式**：开发任务由 MiniMax（`MiniMax-M3.1-Flash`）在
+> Agent 会话中完成，上下文由 `sddctx` 从 seekdb 检索后提供，模型返回的原文存档于
+> `records/minimax_response.json`；演示脚本默认以 `file` 传输重放该存档，所以记录中
+> 没有 HTTP 层的 token 用量与耗时。拿到 `MINIMAX_API_KEY` 后执行
+> `SDDCTX_TRANSPORT=http bash scripts/run_demo.sh` 即可走官方接口重新生成补丁。
 
 ---
 
@@ -96,7 +112,8 @@ python -m sddctx <子命令> [全局参数]
 | 修改前后代码快照 | `demo_project/snapshots/before/`、`demo_project/snapshots/after/` |
 | 代码差异 | `demo_project/patches/before-after.patch`、`demo_project/patches/T-1.patch` |
 | 新增功能测试 / 回归测试 | `demo_project/tests/test_order_discount.py`（`target` 4 个 / `regression` 6 个） |
-| 运行日志 | `demo_project/logs/{before,after}-{target,regression}.log` |
+| 运行日志 | `demo_project/logs/{before,after}-{target,regression}.log`、`records/demo_run.log`、`records/acceptance_run.log` |
+| 六项必做项对照 | `docs/acceptance-checklist.md`（含一键自检脚本 `scripts/acceptance_check.sh`） |
 | MiniMax 开发记录 | `records/minimax_dev_record.md` / `.json` |
 | 数据库查询记录 | `records/db_query_record.md` / `.json` |
 | PowerContext 状态写入与复用记录 | `records/powercontext_state_record.md` / `.json` |

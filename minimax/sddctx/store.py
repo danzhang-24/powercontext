@@ -145,7 +145,17 @@ class SeekdbStore:
         if self.db_dir is None:
             raise ValueError("嵌入式 seekdb 需要 db_dir，或设置 SDDCTX_DB_DSN 使用外部实例")
         self.db_dir.mkdir(parents=True, exist_ok=True)
-        self._instance = pylibseekdb.open(db_dir=str(self.db_dir))
+        try:
+            self._instance = pylibseekdb.open(db_dir=str(self.db_dir))
+        except Exception as exc:  # noqa: BLE001 - 转成可读提示后原样抛出
+            raise RuntimeError(
+                f"无法打开嵌入式 seekdb 数据库目录 {self.db_dir}：{exc}\n"
+                "嵌入式 seekdb 底层使用 O_DIRECT 直写，数据目录必须位于支持 "
+                "O_DIRECT 的**本地文件系统**上（NFS 等网络文件系统会报 "
+                "seekdb_open failed: code=-1）。\n"
+                "请用环境变量 SDDCTX_HOME 指定一个本地路径后重试，"
+                "例如：SDDCTX_HOME=/var/tmp/sddctx-runtime"
+            ) from exc
         # 嵌入式实例自带的 test 库一定存在，先连上去再建目标库。
         self._connection = pylibseekdb.connect(database="test")
 
