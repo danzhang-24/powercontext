@@ -208,8 +208,9 @@ async def search_pdf_pages(
     if type(limit) is not int or limit < 1:
         raise ValueError("PDF search limit must be a positive integer")  # noqa: TRY003
 
+    anchor_queries = _pdf_anchor_queries(question)
     query_results: list[tuple[str, list[MemoryCitation]]] = []
-    for query in _retrieval_queries(question):
+    for query in anchor_queries or (question,):
         page = await memory.search(
             SearchMemoryRequest(
                 query=query,
@@ -254,27 +255,110 @@ async def search_pdf_pages(
             seen.add(identity)
             selected.append(citation)
 
-    # Preserve a short high-confidence seed, then give every lexical expansion
-    # representation at the same rank. This favours gold-page coverage rather
-    # than letting the long original question monopolize all twenty slots.
-    for citation in result_lists[0][:8]:
-        append(citation)
-    if re.search(r"\b(?:ebitda|revenue|income|cash|margin|capex|restructuring|cost)\b", question, re.I):
-        by_query = dict(query_results)
-        for preferred in ("income statement", "operating income", "cash flow statement"):
-            for citation in by_query.get(preferred, ())[:8]:
-                append(citation)
-            if len(selected) == limit:
-                return tuple(selected)
+    if anchor_queries:
+        _append_balanced(result_lists, selected, seen, limit)
+
+    # Use the lexical variants only as a bounded fallback when a section-aware
+    # query returned too few distinct pages.
+    if len(selected) < limit:
+        fallback_lists: list[list[MemoryCitation]] = []
+        for query in _retrieval_queries(question):
+            if query in anchor_queries:
+                continue
+            page = await memory.search(
+                SearchMemoryRequest(
+                    query=query,
+                    mode="fts",
+                    limit=min(100, max(limit * 4, 40)),
+                )
+            )
+            fallback_lists.append([
+                MemoryCitation(
+                    memory_ref=hit.memory_ref,
+                    entry_id=hit.entry_id,
+                    entry_version_id=hit.entry_version_id,
+                )
+                for hit in page.hits
+            ])
+        _append_balanced(fallback_lists, selected, seen, limit)
+    return tuple(selected)
+
+
+def _append_balanced(
+    result_lists: Sequence[Sequence[MemoryCitation]],
+    selected: list[MemoryCitation],
+    seen: set[tuple[str, str, int, str]],
+    limit: int,
+) -> None:
+    """Interleave rankings so each finance-intent query contributes evidence."""
+
     depth = 0
     while len(selected) < limit and any(depth < len(items) for items in result_lists):
         for items in result_lists:
-            if depth < len(items):
-                append(items[depth])
+            if depth >= len(items):
+                continue
+            citation = items[depth]
+            identity = (
+                citation.memory_ref.family,
+                citation.memory_ref.artifact_id,
+                citation.memory_ref.revision,
+                citation.entry_id,
+            )
+            if identity not in seen:
+                seen.add(identity)
+                selected.append(citation)
                 if len(selected) == limit:
-                    break
+                    return
         depth += 1
-    return tuple(selected)
+
+
+def _pdf_anchor_queries(question: str) -> tuple[str, ...]:
+    """Route finance questions to stable statement titles before lexical fallback."""
+
+    lower = question.casefold()
+    if re.search(r"\b(?:legal|litigation)\b", lower):
+        return ("legal matters litigation",)
+    if "industry" in lower:
+        return ("industry business company overview",)
+    if "geograph" in lower or re.search(r"\boperates?\s+in\b", lower):
+        return ("geographic operations regions total revenues",)
+    if "quick ratio" in lower or "liquidity" in lower:
+        return ("current assets current liabilities quick ratio",)
+    if "balance sheet" in lower or re.search(r"\bliabilit(?:y|ies)\b", lower):
+        return ("consolidated balance sheets liabilities",)
+    if "effective tax rate" in lower:
+        return ("effective tax rate income tax expense income before taxes",)
+    if "ebitda" in lower and ("cash flow" in lower or "income statement" in lower):
+        return (
+            "consolidated statements income",
+            "consolidated statements cash flows operating activities investing financing",
+        )
+    if "gross margin" in lower or "operating margin" in lower:
+        return ("consolidated statements income",)
+    if "drove" in lower and ("revenue" in lower or "operating margin" in lower):
+        return ("results of operations net revenue change",)
+    if "restructur" in lower:
+        return ("restructuring charges",)
+    if "acquisition" in lower:
+        return ("acquisitions business combinations purchase price",)
+    if "categories" in lower or "segment" in lower:
+        return ("summary business segment data",)
+    if "customer" in lower:
+        return (
+            "customers",
+            "significant portion business government contracts revenues",
+        )
+    if "production rate" in lower:
+        return ("production rate changes",)
+    if re.search(r"\b(?:products?|services?)\b", lower):
+        return ("products services",)
+    if "cash flow" in lower:
+        return ("consolidated statements cash flows operating activities investing financing",)
+    if "retain" in lower and "member" in lower:
+        return ("retain card members customer retention",)
+    if "cyclical" in lower:
+        return ("business cyclicality subject",)
+    return ()
 
 
 _STOP_WORDS = frozenset({

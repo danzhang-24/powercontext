@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
@@ -298,20 +299,37 @@ class PreparedContextBuilder:
     ]:
         """Pick literal entry spans relevant to the query under the byte budget."""
 
-        query_tokens = _evidence_tokens(request.query)
-        candidates: list[
-            tuple[float, int, int, int, str, MemoryEntryAddress, dict[str, object]]
+        query_tokens = _evidence_tokens(request.query) - _EVIDENCE_QUERY_STOP_WORDS
+        if not query_tokens:
+            query_tokens = _evidence_tokens(request.query)
+        documents: list[
+            tuple[
+                int,
+                str,
+                MemoryEntryAddress,
+                dict[str, object],
+                tuple[tuple[int, int, str, frozenset[str]], ...],
+            ]
         ] = []
+        seen_hits: set[tuple[str, str, int, str]] = set()
         hit_rank = 0
         for group in memory_candidates:
             for hit in group.hits:
                 hit_rank += 1
+                identity = (
+                    group.scope_id,
+                    hit.memory_ref.artifact_id,
+                    hit.memory_ref.revision,
+                    hit.entry_id,
+                )
                 if (
-                    not hit.entry_id.strip()
+                    identity in seen_hits
+                    or not hit.entry_id.strip()
                     or not hit.entry_version_id.strip()
                     or not hit.text.strip()
                 ):
                     continue
+                seen_hits.add(identity)
                 address = MemoryEntryAddress(
                     memory=ArtifactAddress(scope_id=group.scope_id, artifact=hit.memory_ref),
                     entry_id=hit.entry_id,
@@ -323,47 +341,195 @@ class PreparedContextBuilder:
                     "entry_id": hit.entry_id,
                     "entry_version_id": hit.entry_version_id,
                 }
-                for start, end in _sentence_spans(hit.text):
-                    text = hit.text[start:end]
-                    score = _lexical_overlap(query_tokens, text)
-                    candidates.append((score, -hit_rank, start, end, text, address, citation))
+                spans = _sentence_spans(hit.text)
+                sentences = tuple(
+                    (start, end, hit.text[start:end], frozenset(_evidence_tokens(hit.text[start:end])))
+                    for start, end in spans
+                )
+                documents.append((hit_rank, hit.text, address, citation, sentences))
 
-        if not candidates:
+        if not documents:
             return None, (), PreparedContextOmissions(), ()
-        candidates.sort(key=lambda candidate: (-candidate[0], candidate[1], candidate[2]))
+
+        sentence_count = sum(len(document[4]) for document in documents)
+        document_frequency: dict[str, int] = {}
+        for document in documents:
+            for _, _, _, sentence_tokens in document[4]:
+                for term in query_tokens & sentence_tokens:
+                    document_frequency[term] = document_frequency.get(term, 0) + 1
+        inverse_frequency = {
+            term: math.log((sentence_count + 1) / (document_frequency.get(term, 0) + 1)) + 1
+            for term in query_tokens
+        }
+
+        scored_documents: list[
+            tuple[
+                float,
+                int,
+                str,
+                MemoryEntryAddress,
+                dict[str, object],
+                tuple[tuple[int, int, str, frozenset[str]], ...],
+                tuple[float, ...],
+            ]
+        ] = []
+        for rank, text, address, citation, sentences in documents:
+            scores = tuple(
+                _evidence_sentence_score(query_tokens, inverse_frequency, sentence_tokens)
+                for _, _, _, sentence_tokens in sentences
+            )
+            positive = sorted((score for score in scores if score > 0), reverse=True)
+            document_score = sum(positive[:3]) + (0.05 / rank)
+            scored_documents.append((document_score, rank, text, address, citation, sentences, scores))
+        scored_documents.sort(key=lambda item: (-item[0], item[1]))
+
+        windows: list[
+            tuple[float, int, int, int, str, MemoryEntryAddress, dict[str, object]]
+        ] = []
+        for document_score, rank, text, address, citation, sentences, scores in scored_documents:
+            if document_score <= 0:
+                continue
+            # The public quality input prefixes the abstract title. Use it for
+            # document ranking but prefer abstract spans when emitted evidence
+            # exists, because titles consume budget without citing a sentence.
+            candidate_indexes = range(1, len(sentences)) if len(sentences) > 1 else range(len(sentences))
+            indexes = tuple(candidate_indexes)
+            for left_position, left_index in enumerate(indexes):
+                if scores[left_index] <= 0:
+                    continue
+                for right_position in range(left_position, min(len(indexes), left_position + 7)):
+                    right_index = indexes[right_position]
+                    if scores[right_index] <= 0 and right_index != left_index:
+                        continue
+                    start = sentences[left_index][0]
+                    end = sentences[right_index][1]
+                    window_text = text[start:end]
+                    window_tokens = frozenset().union(
+                        *(sentences[index][3] for index in indexes[left_position : right_position + 1])
+                    )
+                    overlap = sum(
+                        inverse_frequency.get(term, 1.0)
+                        for term in query_tokens & window_tokens
+                    )
+                    if overlap <= 0:
+                        continue
+                    sentence_span = right_position - left_position + 1
+                    score = (
+                        overlap
+                        * (1 + 0.08 * max(0, sentence_span - 1))
+                        / math.sqrt(max(1, len(window_text) / 300))
+                    )
+                    windows.append((score, -rank, start, end, window_text, address, citation))
+        if not windows:
+            return None, (), PreparedContextOmissions(), ()
+        windows.sort(key=lambda candidate: (-candidate[0], candidate[1], candidate[2]))
 
         entries: list[_PreparedContextEntry] = []
-        fragments: list[PreparedFragment] = []
-        seen: set[tuple[str, str, str, int, int]] = set()
-        for score, _rank, start, end, text, address, citation in candidates:
-            if score <= 0 and fragments:
-                continue
+        selected_by_entry: dict[tuple[str, str, str], list[tuple[int, int]]] = {}
+        full_text_by_entry = {
+            (
+                address.memory.scope_id,
+                address.memory.artifact.artifact_id,
+                address.entry_id,
+            ): text
+            for _, _, text, address, _, _, _ in scored_documents
+        }
+        for _score, _rank, start, end, text, address, citation in windows:
             identity = (
                 address.memory.scope_id,
                 address.memory.artifact.artifact_id,
                 address.entry_id,
-                start,
-                end,
             )
-            if identity in seen:
+            existing_spans = selected_by_entry.get(identity, [])
+            if any(start < old_end and old_start < end for old_start, old_end in existing_spans):
                 continue
-            seen.add(identity)
-            fitted = _fit_evidence_fragment(
-                entries,
-                request.max_bytes,
-                address,
-                citation,
-                text,
-                start,
+            entry = _PreparedContextEntry(
+                origin=address,
+                kind="memory",
+                citation=citation,
+                content=text,
+                truncated=False,
+                start=start,
+                end=end,
             )
-            if fitted is None:
+            if _rendered_bytes((*entries, entry)) > request.max_bytes:
                 continue
-            entry, fragment = fitted
             entries.append(entry)
-            fragments.append(fragment)
+            existing_spans.append((start, end))
+            selected_by_entry[identity] = existing_spans
+
+        for identity, spans in selected_by_entry.items():
+            if len(spans) < 2:
+                continue
+            merged_start = min(start for start, _ in spans)
+            merged_end = max(end for _, end in spans)
+            template_positions = [
+                index
+                for index, entry in enumerate(entries)
+                if isinstance(entry.origin, MemoryEntryAddress)
+                and (
+                    entry.origin.memory.scope_id,
+                    entry.origin.memory.artifact.artifact_id,
+                    entry.origin.entry_id,
+                )
+                == identity
+            ]
+            first = entries[template_positions[0]]
+            full_text = full_text_by_entry[identity]
+            merged = _PreparedContextEntry(
+                origin=first.origin,
+                kind="memory",
+                citation=first.citation,
+                content=full_text[merged_start:merged_end],
+                truncated=False,
+                start=merged_start,
+                end=merged_end,
+            )
+            replacement = [
+                merged if index == template_positions[0] else entry
+                for index, entry in enumerate(entries)
+                if index not in set(template_positions[1:])
+            ]
+            if _rendered_bytes(replacement) <= request.max_bytes:
+                entries = replacement
+
+        if not entries:
+            # Preserve a useful small result when no complete window fits.
+            single_candidates = [
+                (scores[index], rank, sentences[index][0], sentences[index][1], sentences[index][2], address, citation)
+                for _document_score, rank, _text, address, citation, sentences, scores in scored_documents
+                for index in range(len(sentences))
+                if scores[index] > 0
+            ]
+            single_candidates.sort(key=lambda candidate: (-candidate[0], candidate[1], candidate[2]))
+            for _score, _rank, start, end, text, address, citation in single_candidates:
+                fitted = _fit_evidence_fragment(
+                    entries,
+                    request.max_bytes,
+                    address,
+                    citation,
+                    text,
+                    start,
+                )
+                if fitted is not None:
+                    entry, _fragment = fitted
+                    entries.append(entry)
+                    break
 
         if not entries:
             return None, (), PreparedContextOmissions(), ()
+        fragments = tuple(
+            PreparedFragment(
+                address=entry.origin,
+                start=entry.start,
+                end=entry.end,
+                text=entry.content,
+            )
+            for entry in entries
+            if isinstance(entry.origin, MemoryEntryAddress)
+            and entry.start is not None
+            and entry.end is not None
+        )
         return (
             _render(entries),
             tuple(fragment.address for fragment in fragments),
@@ -801,24 +967,116 @@ def _interleave_groups(groups: Sequence[Sequence[_Item]]) -> tuple[_Item, ...]:
 
 
 _EVIDENCE_TOKEN_RE = re.compile(r"[0-9a-z_]+|[\u4e00-\u9fff]")
-_SENTENCE_RE = re.compile(r"[^.!?。！？\n]+[.!?。！？]?")
+_EVIDENCE_QUERY_STOP_WORDS = frozenset({
+    "a",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "been",
+    "by",
+    "can",
+    "could",
+    "did",
+    "do",
+    "does",
+    "for",
+    "from",
+    "has",
+    "have",
+    "in",
+    "into",
+    "is",
+    "it",
+    "its",
+    "may",
+    "more",
+    "not",
+    "of",
+    "on",
+    "or",
+    "that",
+    "the",
+    "their",
+    "these",
+    "this",
+    "to",
+    "was",
+    "were",
+    "which",
+    "with",
+})
 
 
 def _evidence_tokens(text: str) -> set[str]:
     return {match.group(0).lower() for match in _EVIDENCE_TOKEN_RE.finditer(text)}
 
 
+def _evidence_sentence_score(
+    query_tokens: set[str],
+    inverse_frequency: dict[str, float],
+    sentence_tokens: frozenset[str],
+) -> float:
+    matched = query_tokens & sentence_tokens
+    if not matched or not query_tokens:
+        return 0.0
+    coverage = len(matched) / len(query_tokens)
+    return sum(inverse_frequency.get(term, 1.0) for term in matched) * (0.5 + coverage)
+
+
 def _sentence_spans(text: str) -> tuple[tuple[int, int], ...]:
     spans: list[tuple[int, int]] = []
-    for match in _SENTENCE_RE.finditer(text):
-        start, end = match.span()
+    start = 0
+    index = 0
+    length = len(text)
+    while index < length:
+        character = text[index]
+        boundary = character == "\n"
+        if character in ".!?。！？":
+            boundary = _is_sentence_boundary(text, index)
+        if not boundary:
+            index += 1
+            continue
+        end = index + 1
+        while end < length and text[end] in ".!?。！？":
+            end += 1
+        while end < length and text[end].isspace():
+            end += 1
         while start < end and text[start].isspace():
             start += 1
-        while end > start and text[end - 1].isspace():
-            end -= 1
         if start < end:
             spans.append((start, end))
+        start = end
+        index = end
+    while start < length and text[start].isspace():
+        start += 1
+    if start < length:
+        spans.append((start, length))
     return tuple(spans)
+
+
+def _is_sentence_boundary(text: str, index: int) -> bool:
+    if text[index] in "。！？":
+        return True
+    if text[index] in "!?":
+        return index + 1 == len(text) or text[index + 1].isspace() or text[index + 1] in "\"')]}"
+    following = index + 1
+    if (
+        text[index] == "."
+        and following < len(text)
+        and text[following].isdigit()
+    ):
+        return False
+    while following < len(text) and text[following] in "\"')]}":
+        following += 1
+    while following < len(text) and text[following].isspace():
+        following += 1
+    if following == len(text):
+        return True
+    next_character = text[following]
+    return not next_character.isalpha() or next_character.isupper()
 
 
 def _lexical_overlap(query_tokens: set[str], text: str) -> float:

@@ -191,6 +191,8 @@ class SourceLifecycleService:
     ) -> None:
         """Register one exact Topic revision and its support policy."""
 
+        if not isinstance(artifact_ref, ArtifactRef) or artifact_ref.family != "topic-memory":
+            raise SourceLifecycleError("topic registration requires a topic-memory ArtifactRef")
         await self._register_derived(node_id, "topic", artifact_ref, parents=parents, policy=policy)
 
     async def apply(self, event: SourceLifecycleEvent, /) -> list[str]:
@@ -508,7 +510,7 @@ def _validate_parents(node_id: str, parents: tuple[str, ...], policy: Policy) ->
         raise SourceLifecycleError("parent node ids must be unique")
     if node_id in parents:
         raise SourceLifecycleError("a lifecycle node cannot depend on itself")
-    return parents
+    return tuple(sorted(parents))
 
 
 __all__ = ["LifecycleApplication", "SourceLifecycleError", "SourceLifecycleEvent", "SourceLifecycleService"]
