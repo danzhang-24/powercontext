@@ -278,8 +278,11 @@ class SQLiteMemoryFTSIndex:
         marker_version = await connection.scalar(
             select(SQLITE_MEMORY_FTS_MARKER_TABLE.c.schema_version)
         )
-        rebuild = marker_version != 1
-        if rebuild:
+        rebuild = True
+        if marker_version is None:
+            await connection.execute(insert(SQLITE_MEMORY_FTS_MARKER_TABLE).values(singleton=1, schema_version=1))
+        elif marker_version != 1:
+            await connection.execute(delete(SQLITE_MEMORY_FTS_MARKER_TABLE))
             await connection.execute(insert(SQLITE_MEMORY_FTS_MARKER_TABLE).values(singleton=1, schema_version=1))
         else:
             projection_ok = await connection.scalar(text(_FTS_PROJECTION_CHECK_SQL))
