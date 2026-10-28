@@ -1,0 +1,346 @@
+{
+  "task_id": "T-1",
+  "task": "让满减门槛只按商品小计计算，并排除含易碎品的订单",
+  "context": {
+    "specs": [
+      {
+        "spec_id": "SPEC-DISC-002",
+        "title": "满减门槛只按商品小计计算",
+        "priority": "P0",
+        "status": "待实现",
+        "rule": "满减门槛只按商品小计（不含运费）计算。运费金额不计入门槛：商品小计 95 元、运费 20 元的订单不满足 100 元门槛；商品小计 99.99 元、运费 0.01 元的订单同样不满足门槛。",
+        "acceptance": [
+          "test_threshold_ignores_shipping",
+          "test_threshold_boundary_excludes_subtotal_below_100"
+        ],
+        "source_path": "src/order_discount/engine.py",
+        "source_symbol": "compute_discount",
+        "source_line_start": 21,
+        "source_line_end": 38,
+        "doc_path": "specs/order_discount.spec.md",
+        "doc_line_start": 25,
+        "doc_line_end": 32,
+        "score": 63.0,
+        "matched_terms": [
+          "满减门",
+          "减门槛",
+          "门槛只",
+          "槛只按",
+          "只按商",
+          "按商品",
+          "商品小",
+          "品小计",
+          "小计计",
+          "计计算"
+        ],
+        "locator": "specs/order_discount.spec.md:25-32",
+        "code_locator": "src/order_discount/engine.py:21-38"
+      },
+      {
+        "spec_id": "SPEC-DISC-003",
+        "title": "含易碎品的订单不参与满减",
+        "priority": "P0",
+        "status": "待实现",
+        "rule": "订单中只要包含一行易碎品商品（item.fragile 为真），整单不享受满减优惠，优惠金额为 0 元；运费不改变这一结论。",
+        "acceptance": [
+          "test_fragile_order_is_excluded_from_tier_discount",
+          "test_fragile_order_with_shipping_stays_excluded"
+        ],
+        "source_path": "src/order_discount/engine.py",
+        "source_symbol": "compute_discount",
+        "source_line_start": 21,
+        "source_line_end": 38,
+        "doc_path": "specs/order_discount.spec.md",
+        "doc_line_start": 33,
+        "doc_line_end": 40,
+        "score": 27.0,
+        "matched_terms": [
+          "含易碎",
+          "易碎品",
+          "碎品的",
+          "品的订"
+        ],
+        "locator": "specs/order_discount.spec.md:33-40",
+        "code_locator": "src/order_discount/engine.py:21-38"
+      },
+      {
+        "spec_id": "SPEC-DISC-001",
+        "title": "满减阶梯",
+        "priority": "P0",
+        "status": "已实现",
+        "rule": "商品金额满足满减门槛时按阶梯减免：满 600 元减 80 元，满 300 元减 30 元，满 100 元减 10 元；门槛取\"大于等于\"，只命中最高一档。",
+        "acceptance": [
+          "test_tier_300_subtotal",
+          "test_tier_600_subtotal",
+          "test_below_threshold_has_no_discount"
+        ],
+        "source_path": "src/order_discount/engine.py",
+        "source_symbol": "DISCOUNT_TIERS",
+        "source_line_start": 18,
+        "source_line_end": 18,
+        "doc_path": "specs/order_discount.spec.md",
+        "doc_line_start": 17,
+        "doc_line_end": 24,
+        "score": 15.0,
+        "matched_terms": [
+          "满减门",
+          "减门槛"
+        ],
+        "locator": "specs/order_discount.spec.md:17-24",
+        "code_locator": "src/order_discount/engine.py:18-18"
+      },
+      {
+        "spec_id": "SPEC-DISC-004",
+        "title": "会员在满减金额上再打 95 折",
+        "priority": "P1",
+        "status": "已实现",
+        "rule": "会员订单在满减金额基础上再享受 5% 折扣，结果保留两位小数；无满减时会员折扣不产生优惠。",
+        "acceptance": [
+          "test_member_discount_applies_on_tier",
+          "test_empty_order_has_no_discount"
+        ],
+        "source_path": "src/order_discount/engine.py",
+        "source_symbol": "MEMBER_DISCOUNT_RATE",
+        "source_line_start": 18,
+        "source_line_end": 18,
+        "doc_path": "specs/order_discount.spec.md",
+        "doc_line_start": 41,
+        "doc_line_end": 47,
+        "score": 3.0,
+        "matched_terms": [],
+        "locator": "specs/order_discount.spec.md:41-47",
+        "code_locator": "src/order_discount/engine.py:18-18"
+      }
+    ],
+    "code": [
+      {
+        "path": "src/order_discount/engine.py",
+        "symbol": "compute_discount",
+        "kind": "function",
+        "line_start": 21,
+        "line_end": 38,
+        "signature": "def compute_discount(order: Order) -> float:",
+        "doc": "计算订单优惠金额。\n\nArgs:\n    order: 待计算的订单。\n\nReturns:\n    优惠金额（元），保留两位小数。",
+        "excerpt": "def compute_discount(order: Order) -> float:\n    \"\"\"计算订单优惠金额。\n\n    Args:\n        order: 待计算的订单。\n\n    Returns:\n        优惠金额（元），保留两位小数。\n    \"\"\"\n    amount = order.total\n    discount = 0.0\n    for threshold, reduction in DISCOUNT_TIERS:\n        if amount >= threshold:\n            discount = reduction\n            break\n    if discount and order.member:\n        discount = round(discount * (1 - MEMBER_DISCOUNT_RATE), 2)\n    return discount",
+        "reason": "规格 SPEC-DISC-002 声明的实现位置",
+        "score": 100.0,
+        "locator": "src/order_discount/engine.py:21-38"
+      },
+      {
+        "path": "src/order_discount/engine.py",
+        "symbol": "MEMBER_DISCOUNT_RATE",
+        "kind": "constant",
+        "line_start": 18,
+        "line_end": 18,
+        "signature": "MEMBER_DISCOUNT_RATE = 0.05",
+        "doc": "",
+        "excerpt": "MEMBER_DISCOUNT_RATE = 0.05",
+        "reason": "规格 SPEC-DISC-004 声明的实现位置",
+        "score": 100.0,
+        "locator": "src/order_discount/engine.py:18-18"
+      },
+      {
+        "path": "src/order_discount/models.py",
+        "symbol": "Order",
+        "kind": "class",
+        "line_start": 30,
+        "line_end": 53,
+        "signature": "class Order:",
+        "doc": "订单。\n\nAttributes:\n    order_id: 订单号。\n    items: 订单行。\n    shipping_fee: 运费。规格 SPEC-DISC-002 规定运费不计入满减门槛。\n    member: 是否会员。规格 SPEC-DISC-004 规定会员在满减金额上再打 95 折。",
+        "excerpt": "class Order:\n    \"\"\"订单。\n\n    Attributes:\n        order_id: 订单号。\n        items: 订单行。\n        shipping_fee: 运费。规格 SPEC-DISC-002 规定运费不计入满减门槛。\n        member: 是否会员。规格 SPEC-DISC-004 规定会员在满减金额上再打 95 折。\n    \"\"\"\n\n    order_id: str\n    items: tuple[OrderItem, ...]\n    shipping_fee: float = 0.0\n    member: bool = False\n\n    @property\n    def subtotal(self) -> float:\n        \"\"\"商品小计（不含运费）。\"\"\"\n        return round(sum(item.subtotal for item in self.items), 2)\n\n    @property\n    def total(self) -> float:\n        \"\"\"订单实付金额（商品小计 + 运费）。\"\"\"\n        return round(self.subtotal + self.shipping_fee, 2)",
+        "reason": "关键词命中：满减门, 减门槛",
+        "score": 16.0,
+        "locator": "src/order_discount/models.py:30-53"
+      },
+      {
+        "path": "src/order_discount/models.py",
+        "symbol": "Order.subtotal",
+        "kind": "method",
+        "line_start": 46,
+        "line_end": 48,
+        "signature": "def subtotal(self) -> float:",
+        "doc": "商品小计（不含运费）。",
+        "excerpt": "    def subtotal(self) -> float:\n        \"\"\"商品小计（不含运费）。\"\"\"\n        return round(sum(item.subtotal for item in self.items), 2)",
+        "reason": "关键词命中：商品小, 品小计",
+        "score": 8.0,
+        "locator": "src/order_discount/models.py:46-48"
+      },
+      {
+        "path": "src/order_discount/models.py",
+        "symbol": "Order.total",
+        "kind": "method",
+        "line_start": 51,
+        "line_end": 53,
+        "signature": "def total(self) -> float:",
+        "doc": "订单实付金额（商品小计 + 运费）。",
+        "excerpt": "    def total(self) -> float:\n        \"\"\"订单实付金额（商品小计 + 运费）。\"\"\"\n        return round(self.subtotal + self.shipping_fee, 2)",
+        "reason": "关键词命中：商品小, 品小计",
+        "score": 8.0,
+        "locator": "src/order_discount/models.py:51-53"
+      }
+    ],
+    "tests": [
+      {
+        "path": "tests/test_order_discount.py",
+        "name": "test_threshold_ignores_shipping",
+        "marker": "target",
+        "line_start": 33,
+        "line_end": 36,
+        "doc": "SPEC-DISC-002：运费不计入满减门槛。",
+        "excerpt": "def test_threshold_ignores_shipping():\n    \"\"\"SPEC-DISC-002：运费不计入满减门槛。\"\"\"\n    order = _order(95.0, shipping=20.0)\n    assert compute_discount(order) == 0.0",
+        "reason": "规格 SPEC-DISC-002 声明的验收测试",
+        "score": 100.0,
+        "locator": "tests/test_order_discount.py:33-36"
+      },
+      {
+        "path": "tests/test_order_discount.py",
+        "name": "test_threshold_boundary_excludes_subtotal_below_100",
+        "marker": "target",
+        "line_start": 40,
+        "line_end": 43,
+        "doc": "SPEC-DISC-002：门槛取商品小计，小计 99.99 元不满足 100 元门槛。",
+        "excerpt": "def test_threshold_boundary_excludes_subtotal_below_100():\n    \"\"\"SPEC-DISC-002：门槛取商品小计，小计 99.99 元不满足 100 元门槛。\"\"\"\n    order = _order(99.99, shipping=0.01)\n    assert compute_discount(order) == 0.0",
+        "reason": "规格 SPEC-DISC-002 声明的验收测试",
+        "score": 100.0,
+        "locator": "tests/test_order_discount.py:40-43"
+      },
+      {
+        "path": "tests/test_order_discount.py",
+        "name": "test_fragile_order_is_excluded_from_tier_discount",
+        "marker": "target",
+        "line_start": 47,
+        "line_end": 50,
+        "doc": "SPEC-DISC-003：含易碎品的订单不享受满减。",
+        "excerpt": "def test_fragile_order_is_excluded_from_tier_discount():\n    \"\"\"SPEC-DISC-003：含易碎品的订单不享受满减。\"\"\"\n    order = _order(500.0, fragile=True)\n    assert compute_discount(order) == 0.0",
+        "reason": "规格 SPEC-DISC-003 声明的验收测试",
+        "score": 100.0,
+        "locator": "tests/test_order_discount.py:47-50"
+      },
+      {
+        "path": "tests/test_order_discount.py",
+        "name": "test_fragile_order_with_shipping_stays_excluded",
+        "marker": "target",
+        "line_start": 54,
+        "line_end": 57,
+        "doc": "SPEC-DISC-003：运费不改变易碎品订单不参与满减的结论。",
+        "excerpt": "def test_fragile_order_with_shipping_stays_excluded():\n    \"\"\"SPEC-DISC-003：运费不改变易碎品订单不参与满减的结论。\"\"\"\n    order = _order(95.0, shipping=30.0, fragile=True)\n    assert compute_discount(order) == 0.0",
+        "reason": "规格 SPEC-DISC-003 声明的验收测试",
+        "score": 100.0,
+        "locator": "tests/test_order_discount.py:54-57"
+      },
+      {
+        "path": "tests/test_order_discount.py",
+        "name": "test_tier_300_subtotal",
+        "marker": "regression",
+        "line_start": 66,
+        "line_end": 68,
+        "doc": "SPEC-DISC-001：满 300 元减 30 元。",
+        "excerpt": "def test_tier_300_subtotal():\n    \"\"\"SPEC-DISC-001：满 300 元减 30 元。\"\"\"\n    assert compute_discount(_order(300.0)) == 30.0",
+        "reason": "规格 SPEC-DISC-001 声明的验收测试",
+        "score": 100.0,
+        "locator": "tests/test_order_discount.py:66-68"
+      },
+      {
+        "path": "tests/test_order_discount.py",
+        "name": "test_tier_600_subtotal",
+        "marker": "regression",
+        "line_start": 72,
+        "line_end": 74,
+        "doc": "SPEC-DISC-001：满 600 元减 80 元，只命中最高一档。",
+        "excerpt": "def test_tier_600_subtotal():\n    \"\"\"SPEC-DISC-001：满 600 元减 80 元，只命中最高一档。\"\"\"\n    assert compute_discount(_order(600.0)) == 80.0",
+        "reason": "规格 SPEC-DISC-001 声明的验收测试",
+        "score": 100.0,
+        "locator": "tests/test_order_discount.py:72-74"
+      },
+      {
+        "path": "tests/test_order_discount.py",
+        "name": "test_below_threshold_has_no_discount",
+        "marker": "regression",
+        "line_start": 78,
+        "line_end": 80,
+        "doc": "SPEC-DISC-001：小计 99 元不满足任何门槛。",
+        "excerpt": "def test_below_threshold_has_no_discount():\n    \"\"\"SPEC-DISC-001：小计 99 元不满足任何门槛。\"\"\"\n    assert compute_discount(_order(99.0)) == 0.0",
+        "reason": "规格 SPEC-DISC-001 声明的验收测试",
+        "score": 100.0,
+        "locator": "tests/test_order_discount.py:78-80"
+      },
+      {
+        "path": "tests/test_order_discount.py",
+        "name": "test_member_discount_applies_on_tier",
+        "marker": "regression",
+        "line_start": 84,
+        "line_end": 86,
+        "doc": "SPEC-DISC-004：会员在满减 30 元基础上再打 95 折。",
+        "excerpt": "def test_member_discount_applies_on_tier():\n    \"\"\"SPEC-DISC-004：会员在满减 30 元基础上再打 95 折。\"\"\"\n    assert compute_discount(_order(300.0, member=True)) == 28.5",
+        "reason": "规格 SPEC-DISC-004 声明的验收测试",
+        "score": 100.0,
+        "locator": "tests/test_order_discount.py:84-86"
+      },
+      {
+        "path": "tests/test_order_discount.py",
+        "name": "test_empty_order_has_no_discount",
+        "marker": "regression",
+        "line_start": 96,
+        "line_end": 99,
+        "doc": "SPEC-DISC-004：无商品时没有优惠。",
+        "excerpt": "def test_empty_order_has_no_discount():\n    \"\"\"SPEC-DISC-004：无商品时没有优惠。\"\"\"\n    order = Order(order_id=\"o-1002\", items=(), shipping_fee=12.0, member=True)\n    assert compute_discount(order) == 0.0",
+        "reason": "规格 SPEC-DISC-004 声明的验收测试",
+        "score": 100.0,
+        "locator": "tests/test_order_discount.py:96-99"
+      }
+    ],
+    "state": {
+      "scope_id": "sddctx:order-discount",
+      "source": "powercontext",
+      "entries": [],
+      "done": [],
+      "pending": [],
+      "verifications": []
+    },
+    "queries": [
+      {
+        "purpose": "规格检索（seekdb 打分查询）",
+        "sql": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+        "row_count": 3
+      },
+      {
+        "purpose": "规格检索（seekdb 全文索引 MATCH）",
+        "sql": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+        "row_count": 4
+      },
+      {
+        "purpose": "代码回链（规格来源字段）",
+        "sql": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+        "row_count": 2
+      },
+      {
+        "purpose": "代码检索（seekdb 打分查询）",
+        "sql": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+        "row_count": 4
+      },
+      {
+        "purpose": "测试回链（规格验收字段）",
+        "sql": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+        "row_count": 9
+      },
+      {
+        "purpose": "测试检索（seekdb 打分查询）",
+        "sql": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+        "row_count": 4
+      }
+    ]
+  },
+  "minimax": {
+    "task_id": "T-1",
+    "model": "MiniMax-M3.1-Flash",
+    "transport": "agent-session",
+    "usage": {},
+    "latency_ms": 0,
+    "prompt": "# 开发任务\n让满减门槛只按商品小计计算，并排除含易碎品的订单\n\n# 目标工程\n/home/zhangdan/pc2026/powercontext/minimax/demo_project\n\n# 适用规格条目（来自 seekdb 检索）\n\n- SPEC-DISC-002 满减门槛只按商品小计计算 | 优先级 P0 | 状态 待实现\n  规则：满减门槛只按商品小计（不含运费）计算。运费金额不计入门槛：商品小计 95 元、运费 20 元的订单不满足 100 元门槛；商品小计 99.99 元、运费 0.01 元的订单同样不满足门槛。\n  规格位置：specs/order_discount.spec.md:25-32\n  实现位置：src/order_discount/engine.py:21-38\n\n- SPEC-DISC-003 含易碎品的订单不参与满减 | 优先级 P0 | 状态 待实现\n  规则：订单中只要包含一行易碎品商品（item.fragile 为真），整单不享受满减优惠，优惠金额为 0 元；运费不改变这一结论。\n  规格位置：specs/order_discount.spec.md:33-40\n  实现位置：src/order_discount/engine.py:21-38\n\n- SPEC-DISC-001 满减阶梯 | 优先级 P0 | 状态 已实现\n  规则：商品金额满足满减门槛时按阶梯减免：满 600 元减 80 元，满 300 元减 30 元，满 100 元减 10 元；门槛取\"大于等于\"，只命中最高一档。\n  规格位置：specs/order_discount.spec.md:17-24\n  实现位置：src/order_discount/engine.py:18-18\n\n- SPEC-DISC-004 会员在满减金额上再打 95 折 | 优先级 P1 | 状态 已实现\n  规则：会员订单在满减金额基础上再享受 5% 折扣，结果保留两位小数；无满减时会员折扣不产生优惠。\n  规格位置：specs/order_discount.spec.md:41-47\n  实现位置：src/order_discount/engine.py:18-18\n\n# 需要修改的代码\n\n## 文件 src/order_discount/engine.py 符号 compute_discount (function) 行 21-38\ndef compute_discount(order: Order) -> float:\n    \"\"\"计算订单优惠金额。\n\n    Args:\n        order: 待计算的订单。\n\n    Returns:\n        优惠金额（元），保留两位小数。\n    \"\"\"\n    amount = order.total\n    discount = 0.0\n    for threshold, reduction in DISCOUNT_TIERS:\n        if amount >= threshold:\n            discount = reduction\n            break\n    if discount and order.member:\n        discount = round(discount * (1 - MEMBER_DISCOUNT_RATE), 2)\n    return discount\n\n## 文件 src/order_discount/engine.py 符号 MEMBER_DISCOUNT_RATE (constant) 行 18-18\nMEMBER_DISCOUNT_RATE = 0.05\n\n## 文件 src/order_discount/models.py 符号 Order (class) 行 30-53\nclass Order:\n    \"\"\"订单。\n\n    Attributes:\n        order_id: 订单号。\n        items: 订单行。\n        shipping_fee: 运费。规格 SPEC-DISC-002 规定运费不计入满减门槛。\n        member: 是否会员。规格 SPEC-DISC-004 规定会员在满减金额上再打 95 折。\n    \"\"\"\n\n    order_id: str\n    items: tuple[OrderItem, ...]\n    shipping_fee: float = 0.0\n    member: bool = False\n\n    @property\n    def subtotal(self) -> float:\n        \"\"\"商品小计（不含运费）。\"\"\"\n        return round(sum(item.subtotal for item in self.items), 2)\n\n    @property\n    def total(self) -> float:\n        \"\"\"订单实付金额（商品小计 + 运费）。\"\"\"\n        return round(self.subtotal + self.shipping_fee, 2)\n\n## 文件 src/order_discount/models.py 符号 Order.subtotal (method) 行 46-48\n    def subtotal(self) -> float:\n        \"\"\"商品小计（不含运费）。\"\"\"\n        return round(sum(item.subtotal for item in self.items), 2)\n\n## 文件 src/order_discount/models.py 符号 Order.total (method) 行 51-53\n    def total(self) -> float:\n        \"\"\"订单实付金额（商品小计 + 运费）。\"\"\"\n        return round(self.subtotal + self.shipping_fee, 2)\n\n# 用于验证的测试\n\n## tests/test_order_discount.py::test_threshold_ignores_shipping [target] 行 33-36\ndef test_threshold_ignores_shipping():\n    \"\"\"SPEC-DISC-002：运费不计入满减门槛。\"\"\"\n    order = _order(95.0, shipping=20.0)\n    assert compute_discount(order) == 0.0\n\n## tests/test_order_discount.py::test_threshold_boundary_excludes_subtotal_below_100 [target] 行 40-43\ndef test_threshold_boundary_excludes_subtotal_below_100():\n    \"\"\"SPEC-DISC-002：门槛取商品小计，小计 99.99 元不满足 100 元门槛。\"\"\"\n    order = _order(99.99, shipping=0.01)\n    assert compute_discount(order) == 0.0\n\n## tests/test_order_discount.py::test_fragile_order_is_excluded_from_tier_discount [target] 行 47-50\ndef test_fragile_order_is_excluded_from_tier_discount():\n    \"\"\"SPEC-DISC-003：含易碎品的订单不享受满减。\"\"\"\n    order = _order(500.0, fragile=True)\n    assert compute_discount(order) == 0.0\n\n## tests/test_order_discount.py::test_fragile_order_with_shipping_stays_excluded [target] 行 54-57\ndef test_fragile_order_with_shipping_stays_excluded():\n    \"\"\"SPEC-DISC-003：运费不改变易碎品订单不参与满减的结论。\"\"\"\n    order = _order(95.0, shipping=30.0, fragile=True)\n    assert compute_discount(order) == 0.0\n\n## tests/test_order_discount.py::test_tier_300_subtotal [regression] 行 66-68\ndef test_tier_300_subtotal():\n    \"\"\"SPEC-DISC-001：满 300 元减 30 元。\"\"\"\n    assert compute_discount(_order(300.0)) == 30.0\n\n## tests/test_order_discount.py::test_tier_600_subtotal [regression] 行 72-74\ndef test_tier_600_subtotal():\n    \"\"\"SPEC-DISC-001：满 600 元减 80 元，只命中最高一档。\"\"\"\n    assert compute_discount(_order(600.0)) == 80.0\n\n## tests/test_order_discount.py::test_below_threshold_has_no_discount [regression] 行 78-80\ndef test_below_threshold_has_no_discount():\n    \"\"\"SPEC-DISC-001：小计 99 元不满足任何门槛。\"\"\"\n    assert compute_discount(_order(99.0)) == 0.0\n\n## tests/test_order_discount.py::test_member_discount_applies_on_tier [regression] 行 84-86\ndef test_member_discount_applies_on_tier():\n    \"\"\"SPEC-DISC-004：会员在满减 30 元基础上再打 95 折。\"\"\"\n    assert compute_discount(_order(300.0, member=True)) == 28.5\n\n## tests/test_order_discount.py::test_empty_order_has_no_discount [regression] 行 96-99\ndef test_empty_order_has_no_discount():\n    \"\"\"SPEC-DISC-004：无商品时没有优惠。\"\"\"\n    order = Order(order_id=\"o-1002\", items=(), shipping_fee=12.0, member=True)\n    assert compute_discount(order) == 0.0\n\n# 当前任务状态\n\n已完成：（空）\n待办：（空）\n\n已有验证结果：（空）\n\n# 输出要求\n\n1. 严格按照上面给出的规格条目修改代码，只实现规格里\"状态\"为待实现的条目。\n2. 不要修改测试文件，不要新增测试文件，不要修改规格文件。\n3. 只修改上下文里列出的文件与符号；如确实需要改动其它文件，在补丁前用一行文字说明原因。\n4. 输出一个 unified diff，路径相对于工程根目录，格式如下：\n\n```diff\ndiff --git a/src/order_discount/engine.py b/src/order_discount/engine.py\n--- a/src/order_discount/engine.py\n+++ b/src/order_discount/engine.py\n@@ -21,7 +21,12 @@\n ...\n```\n\n5. 除补丁外不要输出其它内容。",
+    "response": "```diff\ndiff --git a/src/order_discount/engine.py b/src/order_discount/engine.py\n--- a/src/order_discount/engine.py\n+++ b/src/order_discount/engine.py\n@@ -28,6 +28,8 @@\n         优惠金额（元），保留两位小数。\n     \"\"\"\n-    amount = order.total\n+    if any(item.fragile for item in order.items):\n+        return 0.0\n+    amount = order.subtotal\n     discount = 0.0\n     for threshold, reduction in DISCOUNT_TIERS:\n         if amount >= threshold:\n```\n",
+    "diff": "diff --git a/src/order_discount/engine.py b/src/order_discount/engine.py\n--- a/src/order_discount/engine.py\n+++ b/src/order_discount/engine.py\n@@ -28,6 +28,8 @@\n         优惠金额（元），保留两位小数。\n     \"\"\"\n-    amount = order.total\n+    if any(item.fragile for item in order.items):\n+        return 0.0\n+    amount = order.subtotal\n     discount = 0.0\n     for threshold, reduction in DISCOUNT_TIERS:\n         if amount >= threshold:\n",
+    "applied_files": [
+      "src/order_discount/engine.py"
+    ]
+  }
+}

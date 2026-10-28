@@ -1,0 +1,10 @@
+# 运行期数据：嵌入式 seekdb 数据目录、临时工作区（可随时重建）。
+runtime/
+
+# Python 缓存与测试缓存。
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 演示工程运行产物。
+demo_project/logs/*.tmp

@@ -1,0 +1,756 @@
+{
+  "task_id": "T-1",
+  "database": "seekdb（嵌入式 pylibseekdb）",
+  "queries": [
+    {
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3
+    },
+    {
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4
+    },
+    {
+      "purpose": "代码回链（规格来源字段）",
+      "sql": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2
+    },
+    {
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4
+    },
+    {
+      "purpose": "测试回链（规格验收字段）",
+      "sql": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9
+    },
+    {
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4
+    }
+  ],
+  "query_log": [
+    {
+      "id": 1,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T01:35:06+00:00"
+    },
+    {
+      "id": 2,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T01:35:06+00:00"
+    },
+    {
+      "id": 3,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T01:35:06+00:00"
+    },
+    {
+      "id": 4,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T01:35:06+00:00"
+    },
+    {
+      "id": 5,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T01:35:06+00:00"
+    },
+    {
+      "id": 6,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T01:35:06+00:00"
+    },
+    {
+      "id": 1000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T01:58:24+00:00"
+    },
+    {
+      "id": 1000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T01:58:24+00:00"
+    },
+    {
+      "id": 1000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T01:58:24+00:00"
+    },
+    {
+      "id": 1000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T01:58:24+00:00"
+    },
+    {
+      "id": 1000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T01:58:24+00:00"
+    },
+    {
+      "id": 1000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T01:58:24+00:00"
+    },
+    {
+      "id": 2000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T01:59:41+00:00"
+    },
+    {
+      "id": 2000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T01:59:41+00:00"
+    },
+    {
+      "id": 2000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T01:59:41+00:00"
+    },
+    {
+      "id": 2000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T01:59:41+00:00"
+    },
+    {
+      "id": 2000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T01:59:41+00:00"
+    },
+    {
+      "id": 2000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T01:59:41+00:00"
+    },
+    {
+      "id": 3000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T02:07:54+00:00"
+    },
+    {
+      "id": 3000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:07:54+00:00"
+    },
+    {
+      "id": 3000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T02:07:54+00:00"
+    },
+    {
+      "id": 3000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:07:54+00:00"
+    },
+    {
+      "id": 3000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T02:07:54+00:00"
+    },
+    {
+      "id": 3000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:07:54+00:00"
+    },
+    {
+      "id": 4000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T02:07:56+00:00"
+    },
+    {
+      "id": 4000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:07:56+00:00"
+    },
+    {
+      "id": 4000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T02:07:56+00:00"
+    },
+    {
+      "id": 4000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:07:56+00:00"
+    },
+    {
+      "id": 4000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T02:07:56+00:00"
+    },
+    {
+      "id": 4000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:07:56+00:00"
+    },
+    {
+      "id": 5000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T02:11:30+00:00"
+    },
+    {
+      "id": 5000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:11:30+00:00"
+    },
+    {
+      "id": 5000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T02:11:30+00:00"
+    },
+    {
+      "id": 5000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:11:30+00:00"
+    },
+    {
+      "id": 5000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T02:11:30+00:00"
+    },
+    {
+      "id": 5000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:11:30+00:00"
+    },
+    {
+      "id": 6000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T02:11:32+00:00"
+    },
+    {
+      "id": 6000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:11:32+00:00"
+    },
+    {
+      "id": 6000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T02:11:32+00:00"
+    },
+    {
+      "id": 6000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:11:32+00:00"
+    },
+    {
+      "id": 6000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T02:11:32+00:00"
+    },
+    {
+      "id": 6000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:11:32+00:00"
+    },
+    {
+      "id": 7000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T02:11:55+00:00"
+    },
+    {
+      "id": 7000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:11:55+00:00"
+    },
+    {
+      "id": 7000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T02:11:55+00:00"
+    },
+    {
+      "id": 7000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:11:55+00:00"
+    },
+    {
+      "id": 7000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T02:11:55+00:00"
+    },
+    {
+      "id": 7000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:11:55+00:00"
+    },
+    {
+      "id": 8000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T02:13:24+00:00"
+    },
+    {
+      "id": 8000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:13:24+00:00"
+    },
+    {
+      "id": 8000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T02:13:24+00:00"
+    },
+    {
+      "id": 8000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:13:24+00:00"
+    },
+    {
+      "id": 8000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T02:13:24+00:00"
+    },
+    {
+      "id": 8000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:13:24+00:00"
+    },
+    {
+      "id": 9000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T02:13:26+00:00"
+    },
+    {
+      "id": 9000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:13:26+00:00"
+    },
+    {
+      "id": 9000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T02:13:26+00:00"
+    },
+    {
+      "id": 9000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:13:26+00:00"
+    },
+    {
+      "id": 9000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T02:13:26+00:00"
+    },
+    {
+      "id": 9000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:13:26+00:00"
+    },
+    {
+      "id": 10000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T02:14:02+00:00"
+    },
+    {
+      "id": 10000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:14:02+00:00"
+    },
+    {
+      "id": 10000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T02:14:02+00:00"
+    },
+    {
+      "id": 10000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:14:02+00:00"
+    },
+    {
+      "id": 10000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T02:14:02+00:00"
+    },
+    {
+      "id": 10000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:14:02+00:00"
+    },
+    {
+      "id": 11000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T02:14:03+00:00"
+    },
+    {
+      "id": 11000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:14:03+00:00"
+    },
+    {
+      "id": 11000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T02:14:03+00:00"
+    },
+    {
+      "id": 11000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:14:03+00:00"
+    },
+    {
+      "id": 11000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T02:14:03+00:00"
+    },
+    {
+      "id": 11000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T02:14:03+00:00"
+    },
+    {
+      "id": 12000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T04:14:37+00:00"
+    },
+    {
+      "id": 12000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T04:14:37+00:00"
+    },
+    {
+      "id": 12000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T04:14:37+00:00"
+    },
+    {
+      "id": 12000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T04:14:37+00:00"
+    },
+    {
+      "id": 12000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T04:14:37+00:00"
+    },
+    {
+      "id": 12000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T04:14:37+00:00"
+    },
+    {
+      "id": 13000001,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 打分查询）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end, CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM spec_entry WHERE CONCAT_WS(' ', title, rule, acceptance) LIKE '%让满减%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%满减门%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%减门槛%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%门槛只%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%槛只按%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%只按商%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%按商品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%商品小%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品小计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%小计计%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%计计算%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%并排除%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%排除含%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%除含易%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%含易碎%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%易碎品%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%碎品的%' OR CONCAT_WS(' ', title, rule, acceptance) LIKE '%品的订%' ORDER BY score DESC, spec_id LIMIT 25",
+      "row_count": 3,
+      "created_at": "2026-10-28T04:14:39+00:00"
+    },
+    {
+      "id": 13000002,
+      "task_id": "T-1",
+      "purpose": "规格检索（seekdb 全文索引 MATCH）",
+      "sql_text": "SELECT spec_id, title, priority, status, rule, acceptance, source_path, source_symbol, source_line_start, source_line_end, doc_path, doc_line_start, doc_line_end FROM spec_entry WHERE MATCH(title, rule) AGAINST ('让满减门槛只按商品小计计算，并排除含易碎品的订单' IN NATURAL LANGUAGE MODE) LIMIT 25",
+      "row_count": 4,
+      "created_at": "2026-10-28T04:14:39+00:00"
+    },
+    {
+      "id": 13000003,
+      "task_id": "T-1",
+      "purpose": "代码回链（规格来源字段）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body FROM code_symbol WHERE path IN ('src/order_discount/engine.py') ORDER BY path, line_start",
+      "row_count": 2,
+      "created_at": "2026-10-28T04:14:39+00:00"
+    },
+    {
+      "id": 13000004,
+      "task_id": "T-1",
+      "purpose": "代码检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, symbol, kind, line_start, line_end, signature, doc, body, CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' THEN 4 ELSE 0 END + CASE WHEN CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' THEN 4 ELSE 0 END AS score FROM code_symbol WHERE CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%让满减%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%满减门%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%减门槛%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%门槛只%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%槛只按%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%只按商%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%按商品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%商品小%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品小计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%小计计%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%计计算%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%并排除%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%排除含%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%除含易%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%含易碎%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%易碎品%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%碎品的%' OR CONCAT_WS(' ', symbol, signature, doc, body) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T04:14:39+00:00"
+    },
+    {
+      "id": 13000005,
+      "task_id": "T-1",
+      "purpose": "测试回链（规格验收字段）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end FROM test_case WHERE name IN ('test_threshold_ignores_shipping', 'test_threshold_boundary_excludes_subtotal_below_100', 'test_fragile_order_is_excluded_from_tier_discount', 'test_fragile_order_with_shipping_stays_excluded', 'test_tier_300_subtotal', 'test_tier_600_subtotal', 'test_below_threshold_has_no_discount', 'test_member_discount_applies_on_tier', 'test_empty_order_has_no_discount') ORDER BY path, line_start",
+      "row_count": 9,
+      "created_at": "2026-10-28T04:14:39+00:00"
+    },
+    {
+      "id": 13000006,
+      "task_id": "T-1",
+      "purpose": "测试检索（seekdb 打分查询）",
+      "sql_text": "SELECT path, name, marker, doc, line_start, line_end, CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%让满减%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%满减门%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%减门槛%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%门槛只%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%槛只按%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%只按商%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%按商品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%商品小%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品小计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%小计计%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%计计算%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%并排除%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%排除含%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%除含易%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%含易碎%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%易碎品%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%碎品的%' THEN 6 ELSE 0 END + CASE WHEN CONCAT_WS(' ', name, doc) LIKE '%品的订%' THEN 6 ELSE 0 END AS score FROM test_case WHERE CONCAT_WS(' ', name, doc) LIKE '%让满减%' OR CONCAT_WS(' ', name, doc) LIKE '%满减门%' OR CONCAT_WS(' ', name, doc) LIKE '%减门槛%' OR CONCAT_WS(' ', name, doc) LIKE '%门槛只%' OR CONCAT_WS(' ', name, doc) LIKE '%槛只按%' OR CONCAT_WS(' ', name, doc) LIKE '%只按商%' OR CONCAT_WS(' ', name, doc) LIKE '%按商品%' OR CONCAT_WS(' ', name, doc) LIKE '%商品小%' OR CONCAT_WS(' ', name, doc) LIKE '%品小计%' OR CONCAT_WS(' ', name, doc) LIKE '%小计计%' OR CONCAT_WS(' ', name, doc) LIKE '%计计算%' OR CONCAT_WS(' ', name, doc) LIKE '%并排除%' OR CONCAT_WS(' ', name, doc) LIKE '%排除含%' OR CONCAT_WS(' ', name, doc) LIKE '%除含易%' OR CONCAT_WS(' ', name, doc) LIKE '%含易碎%' OR CONCAT_WS(' ', name, doc) LIKE '%易碎品%' OR CONCAT_WS(' ', name, doc) LIKE '%碎品的%' OR CONCAT_WS(' ', name, doc) LIKE '%品的订%' ORDER BY score DESC, path, line_start LIMIT 20",
+      "row_count": 4,
+      "created_at": "2026-10-28T04:14:39+00:00"
+    }
+  ],
+  "verifications": [
+    {
+      "phase": "before",
+      "suite": "target",
+      "command": "/home/zhangdan/pc2026/mmxenv/bin/python -m pytest -p no:cacheprovider -q -m target",
+      "exit_code": 1,
+      "passed": 0,
+      "failed": 4,
+      "errored": 0,
+      "summary": "4 failed, 6 deselected in 0.02s",
+      "code_version": "d647275c308e+content:00421e725ebb"
+    },
+    {
+      "phase": "before",
+      "suite": "regression",
+      "command": "/home/zhangdan/pc2026/mmxenv/bin/python -m pytest -p no:cacheprovider -q -m regression",
+      "exit_code": 0,
+      "passed": 6,
+      "failed": 0,
+      "errored": 0,
+      "summary": "6 passed, 4 deselected in 0.01s",
+      "code_version": "d647275c308e+content:00421e725ebb"
+    },
+    {
+      "phase": "after",
+      "suite": "target",
+      "command": "/home/zhangdan/pc2026/mmxenv/bin/python -m pytest -p no:cacheprovider -q -m target",
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "errored": 0,
+      "summary": "4 passed, 6 deselected in 0.01s",
+      "code_version": "d647275c308e+content:e168b3b33781"
+    },
+    {
+      "phase": "after",
+      "suite": "regression",
+      "command": "/home/zhangdan/pc2026/mmxenv/bin/python -m pytest -p no:cacheprovider -q -m regression",
+      "exit_code": 0,
+      "passed": 6,
+      "failed": 0,
+      "errored": 0,
+      "summary": "6 passed, 4 deselected in 0.02s",
+      "code_version": "d647275c308e+content:e168b3b33781"
+    }
+  ]
+}

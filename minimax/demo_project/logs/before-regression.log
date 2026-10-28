@@ -1,0 +1,14 @@
+# 阶段：before
+# 套件：regression
+# 命令：/home/zhangdan/pc2026/mmxenv/bin/python -m pytest -p no:cacheprovider -q -m regression
+# 退出码：0
+# 统计：通过 6，失败 0，错误 0
+# 代码版本：d647275c308e+content:00421e725ebb
+# 汇总：6 passed, 4 deselected in 0.01s
+
+----- stdout -----
+......                                                                   [100%]
+6 passed, 4 deselected in 0.01s
+
+----- stderr -----
+
