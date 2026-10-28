@@ -1,0 +1,15 @@
+验收自检清单
+============================================================
+[通过] seekdb 连接与版本：版本 5.7.25-OceanBase seekdb-v1.4.0.0
+[通过] 表结构存在：表：papers=7 行、paper_chunks=43 行、reading_log=9 行、briefs=1 行
+[通过] 全文索引（ngram 全文检索）：papers 索引类型 ['BTREE', 'FULLTEXT', 'VECTOR']；paper_chunks 索引类型 ['BTREE', 'FULLTEXT', 'VECTOR']
+[通过] 向量索引（HNSW + vsag）：paper_chunks 索引类型 ['BTREE', 'FULLTEXT', 'VECTOR']
+[通过] 语料已导入 seekdb：papers=7，paper_chunks=43
+[通过] 混合检索有命中：检索“图神经网络 消息传递 邻居聚合”命中 8 条（候选 33 条）
+[通过] BM25 全文 + 向量 ANN 双通道融合：同时命中两路的段落 8 条；全文通道 8 条、向量通道 8 条
+[通过] 结构化过滤（年份区间 / 标签）：标签过滤命中 8 条且全部带 gnn 标签；年份过滤 1990-1991 命中 0 条，SQL 中含年份条件
+[通过] PowerContext 记忆写入后被独立进程读回：独立进程读回方向“图神经网络 消息传递”、标签 ['gnn', 'message-passing']，历史 2 条
+[通过] 研究简报生成：引擎 seekdb-ai-complete，模型 pp_summarizer，长度 376
+[通过] seekdb AI 函数（AI_EMBED / AI_COMPLETE）：AI_EMBED 可用：是；AI_COMPLETE 可用：是
+============================================================
+合计：11/11 项通过

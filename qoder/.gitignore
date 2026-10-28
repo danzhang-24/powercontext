@@ -1,0 +1,11 @@
+# 运行期数据：PowerContext 的 seekdb 存储、工作区、日志与本地模型服务日志。
+runtime/
+
+# Python 缓存与测试缓存。
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 虚拟环境。
+.venv/
+.venv-powercontext/
