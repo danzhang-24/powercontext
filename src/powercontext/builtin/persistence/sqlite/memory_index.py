@@ -124,6 +124,23 @@ CREATE VIRTUAL TABLE IF NOT EXISTS pc_memory_entry_fts USING fts5(
 """
 _DELETE_ALL_FTS_SQL = "DELETE FROM pc_memory_entry_fts"
 _PROBE_FTS_SQL = "SELECT rowid FROM pc_memory_entry_fts WHERE pc_memory_entry_fts MATCH 'powercontext'"
+_FTS_PROJECTION_CHECK_SQL = """
+SELECT 1
+WHERE NOT EXISTS (
+    SELECT scope_id, memory_artifact_id, head_revision, entry_id, entry_version_id, searchable_text
+    FROM pc_memory_entry_heads
+    EXCEPT
+    SELECT scope_id, memory_artifact_id, head_revision, entry_id, entry_version_id, searchable_text
+    FROM pc_memory_entry_fts
+)
+AND NOT EXISTS (
+    SELECT scope_id, memory_artifact_id, head_revision, entry_id, entry_version_id, searchable_text
+    FROM pc_memory_entry_fts
+    EXCEPT
+    SELECT scope_id, memory_artifact_id, head_revision, entry_id, entry_version_id, searchable_text
+    FROM pc_memory_entry_heads
+)
+"""
 _DELETE_MEMORY_FTS_SQL = text(
     "DELETE FROM pc_memory_entry_fts WHERE scope_id = :scope_id AND memory_artifact_id = :memory_artifact_id"
 )
@@ -253,29 +270,36 @@ class SQLiteMemoryFTSIndex:
     tables: tuple[Table, ...] = SQLITE_MEMORY_FTS_TABLES
 
     async def initialize(self, connection: AsyncConnection, /) -> None:
-        """Create and rebuild the FTS5 projection, failing if FTS5 is unavailable."""
+        """Create the FTS5 projection and rebuild it only when it is inconsistent."""
 
         if connection.dialect.name != "sqlite":
             raise CapabilityNotSupportedError("sqlite-fts")
         await connection.exec_driver_sql(_CREATE_FTS_SQL)
-        marker = await connection.scalar(select(SQLITE_MEMORY_FTS_MARKER_TABLE.c.singleton))
-        if marker is None:
+        marker_version = await connection.scalar(
+            select(SQLITE_MEMORY_FTS_MARKER_TABLE.c.schema_version)
+        )
+        rebuild = marker_version != 1
+        if rebuild:
             await connection.execute(insert(SQLITE_MEMORY_FTS_MARKER_TABLE).values(singleton=1, schema_version=1))
-        await connection.exec_driver_sql(_DELETE_ALL_FTS_SQL)
-        rows = (
-            await connection.execute(
-                select(
-                    MEMORY_ENTRY_HEADS_TABLE.c.scope_id,
-                    MEMORY_ENTRY_HEADS_TABLE.c.memory_artifact_id,
-                    MEMORY_ENTRY_HEADS_TABLE.c.head_revision,
-                    MEMORY_ENTRY_HEADS_TABLE.c.entry_id,
-                    MEMORY_ENTRY_HEADS_TABLE.c.entry_version_id,
-                    MEMORY_ENTRY_HEADS_TABLE.c.searchable_text,
+        else:
+            projection_ok = await connection.scalar(text(_FTS_PROJECTION_CHECK_SQL))
+            rebuild = not bool(projection_ok)
+        if rebuild:
+            await connection.exec_driver_sql(_DELETE_ALL_FTS_SQL)
+            rows = (
+                await connection.execute(
+                    select(
+                        MEMORY_ENTRY_HEADS_TABLE.c.scope_id,
+                        MEMORY_ENTRY_HEADS_TABLE.c.memory_artifact_id,
+                        MEMORY_ENTRY_HEADS_TABLE.c.head_revision,
+                        MEMORY_ENTRY_HEADS_TABLE.c.entry_id,
+                        MEMORY_ENTRY_HEADS_TABLE.c.entry_version_id,
+                        MEMORY_ENTRY_HEADS_TABLE.c.searchable_text,
+                    )
                 )
             )
-        ).mappings()
-        for row in rows:
-            await self._insert_row(connection, row)
+            for row in rows.mappings():
+                await self._insert_row(connection, row)
         await connection.exec_driver_sql(_PROBE_FTS_SQL)
 
     async def replace(
