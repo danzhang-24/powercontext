@@ -399,10 +399,19 @@ def _pdf_anchor_queries(question: str) -> tuple[str, ...]:
             "accounts payable inventories",
             "consolidated statements operations net sales cost of sales",
         )
+    if "ebitda" in lower and ("cash flow" in lower or "income statement" in lower):
+        return (
+            "consolidated statements income",
+            "consolidated statements cash flows operating activities investing financing",
+        )
     if re.search(r"\bcapital[- ]intensive\b", lower) or re.search(
         r"\b(?:capex|capital expenditures?)\b", lower
     ):
-        return ("capital expenditures purchases property plant equipment",)
+        return (
+            "consolidated statements income",
+            "consolidated balance sheets property plant equipment",
+            "capital expenditures purchases property plant equipment",
+        )
     if re.search(r"\b(?:legal|litigation)\b", lower):
         return ("legal matters litigation",)
     if "industry" in lower:
@@ -415,11 +424,6 @@ def _pdf_anchor_queries(question: str) -> tuple[str, ...]:
         return ("consolidated balance sheets liabilities",)
     if "effective tax rate" in lower:
         return ("effective tax rate income tax expense income before taxes",)
-    if "ebitda" in lower and ("cash flow" in lower or "income statement" in lower):
-        return (
-            "consolidated statements income",
-            "consolidated statements cash flows operating activities investing financing",
-        )
     if "drove" in lower and ("revenue" in lower or "margin" in lower):
         return ("results of operations net revenue change",)
     if re.search(r"\b(?:year[- ]over[- ]year|change in revenue|revenue change)\b", lower):
