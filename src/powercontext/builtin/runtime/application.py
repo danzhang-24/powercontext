@@ -2675,6 +2675,20 @@ class ScopedTopicMemoryApplication:
             raise InvalidRuntimeRequestError("topic-memory-query-terms")
 
         used_fallback = False
+        lifecycle = getattr(self._runtime, "lifecycle", None)
+        active_topics = (
+            None if lifecycle is None else await lifecycle.active_topic_refs(self.scope_id)
+        )
+        repository_request = request
+        if active_topics is not None:
+            repository_request = request.model_copy(
+                update={
+                    "limit": min(
+                        MAX_TOPIC_MEMORY_SEARCH_LIMIT,
+                        max(request.limit, request.limit * 4, 20),
+                    )
+                }
+            )
         async with self._runtime._scoped_operation(
             self.scope_id,
             embedding_purpose=ModelUsagePurpose.TOPIC_MEMORY_RECALL,
@@ -2687,14 +2701,14 @@ class ScopedTopicMemoryApplication:
                 result = await search(
                     self.scope_id,
                     query,
-                    limit=request.limit,
+                    limit=repository_request.limit,
                     mode="fts",
                     **_admission_keyword(admission),
                 )
                 result = result.model_copy(update={"embedding_calls": 0})
             else:
                 result, used_fallback = await self._search_with_embedding(
-                    request,
+                    repository_request,
                     embedding,
                     search,
                     admission,
@@ -2702,24 +2716,21 @@ class ScopedTopicMemoryApplication:
                     embedding_timeout_seconds,
                 )
         observer = self._runtime._topic_memory_search_observer
-        lifecycle = getattr(self._runtime, "lifecycle", None)
-        if lifecycle is not None:
-            active_topics = await lifecycle.active_topic_refs(self.scope_id)
-            if active_topics is not None:
-                result = result.model_copy(
-                    update={
-                        "hits": tuple(
-                            hit
-                            for hit in result.hits
-                            if (
-                                hit.artifact_ref.family,
-                                hit.artifact_ref.artifact_id,
-                                hit.artifact_ref.revision,
-                            )
-                            in active_topics
+        if active_topics is not None:
+            result = result.model_copy(
+                update={
+                    "hits": tuple(
+                        hit
+                        for hit in result.hits
+                        if (
+                            hit.artifact_ref.family,
+                            hit.artifact_ref.artifact_id,
+                            hit.artifact_ref.revision,
                         )
-                    }
-                )
+                        in active_topics
+                    )[: request.limit]
+                }
+            )
         if observer is not None:
             try:
                 observer(result.mode, used_fallback)
