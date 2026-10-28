@@ -1,0 +1,213 @@
+{
+  "source": "@amap/amap-maps-mcp-server@0.0.8 (build/index.js,高德官方 MCP Server;字段为源码里对象字面量的实际返回键)",
+  "extracted_at": "2026-10-28",
+  "coordinate_order": "经度,纬度(lng,lat)",
+  "distance_unit": "米",
+  "duration_unit": "秒",
+  "notes": [
+    "maps_around_search / maps_text_search 返回的 POI 不含 location(经纬度),只有 id/name/address/typecode/photos",
+    "想拿坐标必须再调 maps_search_detail(id)",
+    "maps_distance 的 type:0=直线距离 1=驾车 3=步行"
+  ],
+  "tools": {
+    "maps_regeocode": {
+      "description": "将一个高德经纬度坐标转换为行政区划地址信息",
+      "params": {
+        "location": "string"
+      },
+      "required": [
+        "location"
+      ],
+      "returns_top_fields": [
+        "addressComponent"
+      ]
+    },
+    "maps_geo": {
+      "description": "将详细的结构化地址转换为经纬度坐标。支持对地标性名胜景区、建筑物名称解析为经纬度坐标",
+      "params": {
+        "address": "string",
+        "city": "string"
+      },
+      "required": [
+        "address"
+      ],
+      "returns_top_fields": [
+        "location"
+      ]
+    },
+    "maps_ip_location": {
+      "description": "IP 定位根据用户输入的 IP 地址，定位 IP 的所在位置",
+      "params": {
+        "ip": "string"
+      },
+      "required": [
+        "ip"
+      ],
+      "returns_top_fields": []
+    },
+    "maps_weather": {
+      "description": "根据城市名称或者标准adcode查询指定城市的天气",
+      "params": {
+        "city": "string"
+      },
+      "required": [
+        "city"
+      ],
+      "returns_top_fields": []
+    },
+    "maps_bicycling": {
+      "description": "骑行路径规划用于规划骑行通勤方案，规划时会考虑天桥、单行线、封路等情况。最大支持 500km 的骑行路线规划",
+      "params": {
+        "origin": "string",
+        "destination": "string"
+      },
+      "required": [
+        "origin",
+        "destination"
+      ],
+      "returns_top_fields": [
+        "instruction",
+        "road",
+        "distance",
+        "orientation",
+        "duration"
+      ]
+    },
+    "maps_direction_walking": {
+      "description": "步行路径规划 API 可以根据输入起点终点经纬度坐标规划100km 以内的步行通勤方案，并且返回通勤方案的数据",
+      "params": {
+        "origin": "string",
+        "destination": "string"
+      },
+      "required": [
+        "origin",
+        "destination"
+      ],
+      "returns_paths_fields": [
+        "instruction",
+        "road",
+        "distance",
+        "orientation",
+        "duration"
+      ]
+    },
+    "maps_direction_transit_integrated": {
+      "description": "公交路径规划 API 可以根据用户起终点经纬度坐标规划综合各类公共（火车、公交、地铁）交通方式的通勤方案，并且返回通勤方案的数据，跨城场景下必须传起点城市与终点城市",
+      "params": {
+        "origin": "string",
+        "destination": "string",
+        "city": "string",
+        "cityd": "string"
+      },
+      "required": [
+        "origin",
+        "destination",
+        "city",
+        "cityd"
+      ],
+      "returns_top_fields": [
+        "instruction",
+        "road",
+        "distance",
+        "action",
+        "assistant_action",
+        "name",
+        "distance",
+        "transits"
+      ]
+    },
+    "maps_distance": {
+      "description": "距离测量 API 可以测量两个经纬度坐标之间的距离,支持驾车、步行以及球面距离测量",
+      "params": {
+        "origins": "string",
+        "destination": "string",
+        "type": "string"
+      },
+      "required": [
+        "origins",
+        "destination"
+      ],
+      "returns_results_fields": [
+        "origin_id",
+        "dest_id",
+        "distance",
+        "duration"
+      ]
+    },
+    "maps_text_search": {
+      "description": "关键词搜，根据用户传入关键词，搜索出相关的POI",
+      "params": {
+        "keywords": "string",
+        "city": "string",
+        "types": "string"
+      },
+      "required": [
+        "keywords"
+      ],
+      "returns_poi_fields": [
+        "name",
+        "id",
+        "address",
+        "typecode",
+        "photos"
+      ]
+    },
+    "maps_around_search": {
+      "description": "周边搜，根据用户传入关键词以及坐标location，搜索出radius半径范围的POI",
+      "params": {
+        "keywords": "string",
+        "location": "string",
+        "radius": "string"
+      },
+      "required": [
+        "location"
+      ],
+      "returns_poi_fields": [
+        "id",
+        "name",
+        "address",
+        "typecode",
+        "photos"
+      ]
+    },
+    "maps_search_detail": {
+      "description": "查询关键词搜或者周边搜获取到的POI ID的详细信息",
+      "params": {
+        "id": "string"
+      },
+      "required": [
+        "id"
+      ],
+      "returns_top_fields": [
+        "id",
+        "name",
+        "location",
+        "address",
+        "business_area",
+        "city",
+        "type",
+        "alias",
+        "photos",
+        "biz_ext"
+      ]
+    },
+    "maps_direction_driving": {
+      "description": "驾车路径规划 API 可以根据用户起终点经纬度坐标规划以小客车、轿车通勤出行的方案，并且返回通勤方案的数据。",
+      "params": {
+        "origin": "string",
+        "destination": "string"
+      },
+      "required": [
+        "origin",
+        "destination"
+      ],
+      "returns_top_fields": [
+        "instruction",
+        "road",
+        "distance",
+        "orientation",
+        "duration"
+      ]
+    }
+  }
+}
