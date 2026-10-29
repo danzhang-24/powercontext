@@ -75,6 +75,15 @@ header:
     - 'tests/fixtures/loopback_test_ca.pem'
     # license-eye cannot determine the comment style of Mermaid diagrams.
     - '**/*.mermaid'
+    # 参赛作品目录:非源码类型没有可用的注释风格
+    - '**/*.log'
+    - '**/.gitkeep'
+    - '**/*.npmrc'
+    - '**/*.ini'
+    - '**/*.env'
+    - '**/*.example'
+    - '**/*.csv'
+    - '**/*.tsv'
     # license-eye cannot determine the comment style of uv requirements files.
     - 'e2e/bub/source-overrides.txt'
     - 'integrations/dify/plugin/requirements.txt'
