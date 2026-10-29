@@ -106,4 +106,3 @@ ALTER TABLE docs RETRY AI COLUMN tags WHERE id = 1;
 
 
 上述 Mysqltest 按各自脚本启动或使用本地 Mock 服务，端口为 19120～19124；DDL 用例仅定义 Endpoint，不发起模型请求。评测网关是独立工具，不属于数据库事务边界，其单元测试使用 Fake Upstream，无需真实模型凭据。
-

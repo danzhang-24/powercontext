@@ -18,9 +18,13 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.15.7"
     hooks:
+      # 参赛作品目录是独立交付物,不参与上游核心代码的 lint:
+      # 上游规则(如 RUF002 全角括号)对中文演示代码不适用。
       - id: ruff-check
+        exclude: ^(?:dify|minimax|gaode|stepfun|qoder|notes)/
         args: [--exit-non-zero-on-fix]
       - id: ruff-format
+        exclude: ^(?:dify|minimax|gaode|stepfun|qoder|notes)/
 
   - repo: local
     hooks:

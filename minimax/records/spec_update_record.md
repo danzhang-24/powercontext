@@ -29,4 +29,3 @@
 ```bash
 cp demo_project/snapshots/before/order_discount.spec.md demo_project/specs/order_discount.spec.md
 ```
-

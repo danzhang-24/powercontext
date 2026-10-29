@@ -61,4 +61,3 @@ FAILED tests/test_order_discount.py::test_fragile_order_with_shipping_stays_excl
 4 failed, 6 deselected in 0.16s
 
 ----- stderr -----
-

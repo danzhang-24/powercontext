@@ -82,4 +82,3 @@ verifications:
 ```
 
 该状态被用于后续上下文组装（见 minimax_dev_record.md 的上下文小节）。
-

@@ -1,22 +1,130 @@
 [
-  { "query": "seekdb 是什么", "relevant": ["seekdb 是什么"] },
-  { "query": "混合检索是怎么做的", "relevant": ["混合检索原理", "混合检索的工程要点"] },
-  { "query": "RRF 的两个关键参数是什么", "relevant": ["RRF 融合参数"] },
-  { "query": "向量索引用的是什么结构", "relevant": ["HNSW 向量索引"] },
-  { "query": "中文全文检索应该用什么分词器", "relevant": ["全文索引与分词"] },
-  { "query": "浏览器里怎么运行 embedding 模型", "relevant": ["Transformers.js 端侧推理"] },
-  { "query": "INT8 量化能把模型压缩多少", "relevant": ["模型量化 INT8"] },
-  { "query": "FP16 和 INT8 有什么区别", "relevant": ["FP16 量化", "模型量化 INT8"] },
-  { "query": "WebGPU 不可用的时候怎么办", "relevant": ["WebGPU 与 WASM 后端"] },
-  { "query": "怎么提高端侧向量化的吞吐", "relevant": ["批量向量化优化"] },
-  { "query": "混合检索落地时有哪些工程要点", "relevant": ["混合检索的工程要点", "混合检索原理"] },
-  { "query": "OceanBase 和 seekdb 是什么关系", "relevant": ["OceanBase 与 seekdb 的关系"] },
-  { "query": "向量检索和全文检索各自擅长什么", "relevant": ["混合检索原理", "全文索引与分词"] },
-  { "query": "为什么写入之后要刷新索引", "relevant": ["HNSW 向量索引", "混合检索的工程要点"] },
-  { "query": "本地推理用到了哪些运行时", "relevant": ["Transformers.js 端侧推理", "WebGPU 与 WASM 后端"] },
-  { "query": "模型体积可以压缩到多少", "relevant": ["模型量化 INT8", "FP16 量化"] },
-  { "query": "RRF 的排名窗口是什么意思", "relevant": ["RRF 融合参数"] },
-  { "query": "端侧知识库的数据存在哪里", "relevant": ["seekdb 是什么", "混合检索的工程要点"] },
-  { "query": "ik 分词器的 smart 模式", "relevant": ["全文索引与分词"] },
-  { "query": "HNSW 的距离度量怎么选", "relevant": ["HNSW 向量索引"] }
+  {
+    "query": "seekdb 是什么",
+    "relevant": [
+      "seekdb 是什么"
+    ]
+  },
+  {
+    "query": "混合检索是怎么做的",
+    "relevant": [
+      "混合检索原理",
+      "混合检索的工程要点"
+    ]
+  },
+  {
+    "query": "RRF 的两个关键参数是什么",
+    "relevant": [
+      "RRF 融合参数"
+    ]
+  },
+  {
+    "query": "向量索引用的是什么结构",
+    "relevant": [
+      "HNSW 向量索引"
+    ]
+  },
+  {
+    "query": "中文全文检索应该用什么分词器",
+    "relevant": [
+      "全文索引与分词"
+    ]
+  },
+  {
+    "query": "浏览器里怎么运行 embedding 模型",
+    "relevant": [
+      "Transformers.js 端侧推理"
+    ]
+  },
+  {
+    "query": "INT8 量化能把模型压缩多少",
+    "relevant": [
+      "模型量化 INT8"
+    ]
+  },
+  {
+    "query": "FP16 和 INT8 有什么区别",
+    "relevant": [
+      "FP16 量化",
+      "模型量化 INT8"
+    ]
+  },
+  {
+    "query": "WebGPU 不可用的时候怎么办",
+    "relevant": [
+      "WebGPU 与 WASM 后端"
+    ]
+  },
+  {
+    "query": "怎么提高端侧向量化的吞吐",
+    "relevant": [
+      "批量向量化优化"
+    ]
+  },
+  {
+    "query": "混合检索落地时有哪些工程要点",
+    "relevant": [
+      "混合检索的工程要点",
+      "混合检索原理"
+    ]
+  },
+  {
+    "query": "OceanBase 和 seekdb 是什么关系",
+    "relevant": [
+      "OceanBase 与 seekdb 的关系"
+    ]
+  },
+  {
+    "query": "向量检索和全文检索各自擅长什么",
+    "relevant": [
+      "混合检索原理",
+      "全文索引与分词"
+    ]
+  },
+  {
+    "query": "为什么写入之后要刷新索引",
+    "relevant": [
+      "HNSW 向量索引",
+      "混合检索的工程要点"
+    ]
+  },
+  {
+    "query": "本地推理用到了哪些运行时",
+    "relevant": [
+      "Transformers.js 端侧推理",
+      "WebGPU 与 WASM 后端"
+    ]
+  },
+  {
+    "query": "模型体积可以压缩到多少",
+    "relevant": [
+      "模型量化 INT8",
+      "FP16 量化"
+    ]
+  },
+  {
+    "query": "RRF 的排名窗口是什么意思",
+    "relevant": [
+      "RRF 融合参数"
+    ]
+  },
+  {
+    "query": "端侧知识库的数据存在哪里",
+    "relevant": [
+      "seekdb 是什么",
+      "混合检索的工程要点"
+    ]
+  },
+  {
+    "query": "ik 分词器的 smart 模式",
+    "relevant": [
+      "全文索引与分词"
+    ]
+  },
+  {
+    "query": "HNSW 的距离度量怎么选",
+    "relevant": [
+      "HNSW 向量索引"
+    ]
+  }
 ]

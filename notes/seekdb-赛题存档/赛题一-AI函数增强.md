@@ -50,4 +50,3 @@ seekdb 已支持 `AI_PROMPT`、`AI_COMPLETE`、`AI_EMBED`、`AI_RERANK` 及 AI M
 
 
 `ai_function_enhancement.test` 依赖运行在 `0.0.0.0:8000` 的 Mock AI Service。
-
