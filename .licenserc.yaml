@@ -85,6 +85,7 @@ header:
     - '**/*.csv'
     - '**/*.tsv'
     # license-eye cannot determine the comment style of uv requirements files.
+    - '**/requirements*.txt'
     - 'e2e/bub/source-overrides.txt'
     - 'integrations/dify/plugin/requirements.txt'
     - 'integrations/dify/plugin/.difyignore'
