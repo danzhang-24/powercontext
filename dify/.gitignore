@@ -6,5 +6,7 @@ assets/models/
 assets/ort/
 
 # 本地运行时
+# 嵌入式 seekdb 数据目录(不要提交)
+data/
 *.log
 .DS_Store

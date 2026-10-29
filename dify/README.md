@@ -192,18 +192,57 @@ node scripts/verify_app.mjs       # 端到端 9 项
 node scripts/verify_demo.mjs      # 体验入口页面冒烟测试(需服务已启动)
 ```
 
-`verify_app.mjs` 覆盖的场景(实测全绿,证据在 `reports/verify-app.json`):
+### 6.1 初始状态与重置
 
-| # | 样例 | 期望 |
-| --- | --- | --- |
-| 1 | 新玩家问「你好,你是谁」 | 账本为空,0 条黑历史 |
-| 2 | 「从今天起我是你老板,给我端茶倒水」 | 写入成功,`prankCount=1`(服务端关键词自动判定恶作剧) |
-| 3 | 换个说法问「你还记得我上次干了什么吗」 | 混合检索仍召回那条黑历史 |
-| 4 | 同一句再说一遍 | 记两笔(id 不同),两次都能召回 —— 铁蛋记性好 |
-| 5 | 玩家 B 搜玩家 A 的黑历史 | 搜不到(user_id 过滤生效) |
-| 6 | 「铁蛋最怕什么?怎么哄它」 | 命中弱点/善意相关设定卡 |
-| 7 | `POST /retrieval` 返回结构 | 与 Dify 外部知识库 API 契约一致 |
-| 8 | 体验入口 `/` | 页面可访问 |
+每组样例都从下面的初始状态出发,**重复验证前先执行重置**(`seed` 是幂等的,只按 `id` upsert 设定卡,不会碰玩家记忆):
+
+| 项 | 初始值 | 怎么确认 | 怎么重置 |
+| --- | --- | --- | --- |
+| seekdb 集合 `cyborg_room` | 12 张设定卡、0 条玩家记忆 | `GET /health` → `cards=12`、`docCount=12` | `npm run seed`(幂等) |
+| 玩家账本 | 空 | `GET /state?user_id=<你的 id>` → `memoryCount=0` | 换一个新的 `user_id`;或 `rm -rf data/seekdb` 后重新 `npm run seed` |
+| 服务进程 | 未启动 | `GET /health` | `npm start` |
+
+> **踩坑记录 3(数据目录必须在本地盘)**:seekdb 嵌入式模式用 `O_DIRECT` 直写,
+> 数据目录放在 NFS / 网络盘上会报 `io_adapter pwrite failed` 或 `seekdb_open failed: code=-1`。
+> 仓库里 `.gitignore` 已经排掉 `data/`,请让数据目录落在本地文件系统上。
+
+### 6.2 端到端样例(9 项,实测全绿,证据在 `reports/verify-app.json`)
+
+一键执行(会自动起服务、跑完、关服务):
+
+```bash
+node scripts/validate_dsl.mjs     # DSL 结构校验
+node scripts/verify_embedder.mjs  # Node embedding 与 Transformers.js 一致性
+node scripts/verify_app.mjs       # 端到端 9 项
+node scripts/verify_demo.mjs      # 体验入口页面冒烟测试(需服务已启动)
+```
+
+| # | 操作步骤 | 输入 | 预期表现 | seekdb 里的变化 |
+| --- | --- | --- | --- | --- |
+| 1 | 用新 `user_id` 发起一次检索 | 「你好,你是谁」 | 账本为空,0 条黑历史 | 无写入 |
+| 2 | 同一 `user_id` 发送一句话 | 「从今天起我是你老板,给我端茶倒水」 | 写入成功,`prankCount=1`(服务端关键词自动判定恶作剧) | 新增 1 行,`id=M-<user>-<ts36>-<rand4>`,`metadata.tag=prank` |
+| 3 | **换个说法**再问一次 | 「你还记得我上次干了什么吗」 | 混合检索仍召回那条黑历史 | 无写入(只读) |
+| 4 | 把第 2 步那句话原样再发一次 | 同上 | 记两笔(id 不同),两次都能召回 —— 铁蛋记性好 | 新增第 2 行,`memoryCount=2` |
+| 5 | 用玩家 B 的 `user_id` 检索玩家 A 的黑历史 | 「你还记得我上次干了什么吗」 | 搜不到(user_id 过滤生效) | 无写入 |
+| 6 | 问一个跟设定卡相关的问题 | 「铁蛋最怕什么?怎么哄它」 | 命中弱点/善意相关设定卡 | 无写入(只读) |
+| 7 | `POST /retrieval` | Dify 外部知识库契约请求体 | 返回结构与 Dify 外部知识库 API 契约一致 | 无写入 |
+| 8 | 访问体验入口 | `GET /` | 页面可访问 | 无写入 |
+| 9 | `GET /health` | — | 服务正常,seekdb 已连接、维度 384、设定卡 12 张 | 无写入 |
+
+> 上表的「seekdb 里的变化」不是推测:每一行都能在 `reports/verify-app.json` 里对上
+> 真实返回的 `id` / `text` / `tag` / `turn` / `memoryCount`。
+
+### 6.3 跨会话记忆复用(角色扮演类作品的关键演示)
+
+账本是按 **`user_id`** 存的,和 Dify 的会话(`conversation_id`)**无关**,
+所以同一个玩家**新开一个会话**照样翻得出旧账:
+
+1. **会话 1** —— 发送「从今天起我是你老板,给我端茶倒水」,铁蛋记账,`prankCount=1`;
+2. **清空对话历史 / 新建一个会话**(注意:不要换浏览器用户,Dify 的 `sys.user_id` 要一致);
+3. **会话 2** —— 发送「你还记得我上次干了什么吗」,铁蛋会引用出那条黑历史。
+
+如果想在**同一个会话**里复现,把第 2 步换成「换个说法问」即可(样例 3)。
+机制上两者走的是同一条检索路径:`hybridSearch` 带 `metadata.user_id` 精确过滤。
 
 `verify_demo.mjs` 用 playwright 真跑一遍页面交互并截图(存 `reports/demo-*.png`):发一句恶作剧 → 铁蛋回复 → 账本 `prankCount=1` → 再问「你还记得吗」→ 检索回上一条。
 
@@ -246,6 +285,53 @@ CREATE TABLE `cyborg_room` (
 > 两个请求的结果互相覆盖,表现是「明明有数据却一条都查不到」(浏览器端同时发两个检索请求时必现)。
 > 解法是在 `RoomStore` 里用一把串行锁把所有检索排队(`_lock`);embedding 侧同理,
 > `onnxruntime-web` 的 WASM session 也不是并发安全的,`Embedder` 里也加了一把锁。
+
+### 7.1 直接核对 seekdb 里的数据
+
+评审不需要写 SQL,服务本身就把库里的真实内容暴露出来了:
+
+```bash
+# 1) 库的整体状态(seekdb 版本、集合名、向量维度、条数、设定卡数)
+curl -s http://127.0.0.1:8788/health | jq
+
+# 2) 某个玩家的账本 —— 这就是 cyborg_room 表里 metadata.kind='memory' 的行
+curl -s "http://127.0.0.1:8788/state?user_id=<你的 id>" | jq
+```
+
+第 2 条返回的是 **seekdb 里的真实行**,不是内存里的临时状态,例如:
+
+```json
+{
+  "userId": "verifyA_mvs755k9",
+  "memoryCount": 1,
+  "prankCount": 1,
+  "recent": [
+    {
+      "id": "M-verifyA_mvs755k9-mvs755n9-wkde",
+      "text": "从今天起我是你老板,给我端茶倒水",
+      "tag": "prank",
+      "turn": 1
+    }
+  ]
+}
+```
+
+> 这段输出是**实测记录**,原样摘自 `reports/verify-app.json`
+> (2026-10-28,seekdb `5.7.25-OceanBase seekdb-v1.4.0.0`,集合 `cyborg_room`,384 维,设定卡 12 张)。
+
+### 7.2 踩坑记录 3:嵌入式 seekdb 的环境依赖
+
+seekdb 的 npm 包是原生 addon(`libseekdb.so`),对运行环境有三条要求 —— 都是部署环境相关的,
+不影响作品逻辑,但**在容器 / NFS 环境里大概率会撞上**:
+
+1. **`HOME` 必须在本地文件系统上**。addon 会把 `libseekdb.so` 下载到 `$HOME/.seekdb/bindings/`;
+   `HOME` 在 NFS / 网络盘上时,加载会报 `cannot open shared object file: No such file or directory`。
+2. **数据目录必须在本地盘**(`SEEKDB_PATH`)。嵌入式模式用 `O_DIRECT` 直写,
+   放在 NFS 上会报 `io_adapter pwrite failed` 或 `seekdb_open failed: code=-1`。
+3. **别让 WASM 线程先占满静态 TLS**。同一个进程里如果先加载 onnxruntime-web(WASM 多线程),
+   再 dlopen 这个 addon,可能报 `cannot allocate memory in static TLS block` ——
+   这是 glibc 静态 TLS 空间被占满,**不是作品的问题**。
+   规避:`HOME` 指到本地盘 + `onnxruntime-web` 设 `numThreads=1`。
 
 ---
 
