@@ -1,0 +1,184 @@
+{
+  "_comment": "mock 的高德返回,字段裁剪与官方 @amap/amap-maps-mcp-server 一致:周边搜索不含 location",
+  "start": {
+    "location": "120.1657,30.2766",
+    "name": "武林路地铁站"
+  },
+  "tools": {
+    "maps_around_search": "(args) => { const r = args.radius || '1000'; const c = MOCK.pois.filter((p) => p.__straightMeters <= Number(r)); return JSON.stringify({ pois: c.map((p) => ({ id: p.id, name: p.name, address: p.address, typecode: p.typecode })) }, null, 2); }",
+    "maps_text_search": "(args) => JSON.stringify({ pois: MOCK.pois.map((p) => ({ id: p.id, name: p.name, address: p.address, typecode: p.typecode })) }, null, 2)",
+    "maps_search_detail": "(args) => { const p = MOCK.pois.find((x) => x.id === args.id); if (!p) return JSON.stringify({ error: 'POI 不存在' }); return JSON.stringify({ id: p.id, name: p.name, location: p.location, address: p.address, business_area: p.business_area, city: '杭州市', type: p.type, alias: p.alias, biz_ext: p.biz_ext }, null, 2); }",
+    "maps_direction_walking": "(args) => { const dest = MOCK.pois.find((x) => x.location === args.destination); if (!dest) return JSON.stringify({ error: '终点坐标无法匹配' }); const w = MOCK.walking[dest.id]; return JSON.stringify({ route: { origin: { location: args.origin }, destination: { location: args.destination }, paths: [{ distance: String(w.distance), duration: String(w.duration), steps: w.steps.map((s) => ({ instruction: s.instruction, road: s.road, distance: String(s.distance), duration: String(s.duration) })) }] } }, null, 2); }",
+    "maps_geo": "(args) => JSON.stringify({ location: MOCK.start.location, address: MOCK.start.name }, null, 2)",
+    "maps_distance": "(args) => JSON.stringify({ results: [{ origin_id: '起点', dest_id: args.destination, distance: '0', duration: '0' }] }, null, 2)",
+    "maps_regeocode": "(args) => JSON.stringify({ addressComponent: { city: '杭州市', district: '拱墅区' } }, null, 2)",
+    "maps_weather": "(args) => JSON.stringify({ forecasts: [] }, null, 2)"
+  },
+  "pois": [
+    {
+      "id": "B0FFH1",
+      "name": "蓝瓶咖啡(武林店)",
+      "address": "杭州市下城区延安路 511 号武林银泰 B1",
+      "typecode": "050000",
+      "location": "120.1613,30.2759",
+      "type": "餐饮服务;咖啡厅",
+      "business_area": "武林商圈",
+      "alias": "Blue Bottle Coffee",
+      "biz_ext": {
+        "rating": "4.6",
+        "cost": "48",
+        "tag": "品质咖啡"
+      },
+      "__straightMeters": 430
+    },
+    {
+      "id": "B0FFH2",
+      "name": "星巴克臻选(凤起路店)",
+      "address": "杭州市拱墅区凤起路 62 号",
+      "typecode": "050000",
+      "location": "120.1692,30.2745",
+      "type": "餐饮服务;咖啡厅",
+      "business_area": "凤起路商圈",
+      "alias": "Starbucks Reserve",
+      "biz_ext": {
+        "rating": "4.4",
+        "cost": "42"
+      },
+      "__straightMeters": 480
+    },
+    {
+      "id": "B0FFH3",
+      "name": "漫咖啡(西湖银泰店)",
+      "address": "杭州市下城区延安路 258 号",
+      "typecode": "050000",
+      "location": "120.1606,30.2709",
+      "type": "餐饮服务;咖啡厅",
+      "business_area": "西湖银泰商圈",
+      "alias": "MAAN COFFEE",
+      "biz_ext": {
+        "rating": "4.2",
+        "cost": "68"
+      },
+      "__straightMeters": 640
+    },
+    {
+      "id": "B0FFH4",
+      "name": "Manner Coffee(武林路店)",
+      "address": "杭州市拱墅区武林路 100 号",
+      "typecode": "050000",
+      "location": "120.1665,30.2772",
+      "type": "餐饮服务;咖啡厅",
+      "business_area": "武林商圈",
+      "alias": "MANNER COFFEE",
+      "biz_ext": {
+        "rating": "4.7",
+        "cost": "22"
+      },
+      "__straightMeters": 95
+    },
+    {
+      "id": "B0FFH5",
+      "name": "麦咖啡(杭州大厦店)",
+      "address": "杭州市下城区武林广场 1 号",
+      "typecode": "050000",
+      "location": "120.1648,30.2742",
+      "type": "餐饮服务;咖啡厅",
+      "business_area": "武林商圈",
+      "alias": "McCafé",
+      "biz_ext": {
+        "rating": "4.1",
+        "cost": "35"
+      },
+      "__straightMeters": 300
+    },
+    {
+      "id": "B0FFH6",
+      "name": "Seesaw Coffee(嘉里中心店)",
+      "address": "杭州市下城区延安路 385 号嘉里中心 2F",
+      "typecode": "050000",
+      "location": "120.1635,30.2762",
+      "type": "餐饮服务;咖啡厅",
+      "business_area": "嘉里中心",
+      "alias": "Seesaw Coffee",
+      "biz_ext": {
+        "rating": "4.5",
+        "cost": "55"
+      },
+      "__straightMeters": 210
+    }
+  ],
+  "walking": {
+    "B0FFH1": {
+      "distance": 1120,
+      "duration": 720,
+      "steps": [
+        {
+          "instruction": "沿延安路向北约 800 米,右转进入武林路",
+          "road": "延安路",
+          "distance": 800,
+          "duration": 520
+        }
+      ]
+    },
+    "B0FFH2": {
+      "distance": 1450,
+      "duration": 890,
+      "steps": [
+        {
+          "instruction": "沿凤起路向北约 900 米,再向北步行 400 米",
+          "road": "凤起路",
+          "distance": 1300,
+          "duration": 790
+        }
+      ]
+    },
+    "B0FFH3": {
+      "distance": 2100,
+      "duration": 1280,
+      "steps": [
+        {
+          "instruction": "沿延安路向北约 1.9 公里",
+          "road": "延安路",
+          "distance": 1900,
+          "duration": 1150
+        }
+      ]
+    },
+    "B0FFH4": {
+      "distance": 680,
+      "duration": 460,
+      "steps": [
+        {
+          "instruction": "沿武林路向北约 500 米,右转",
+          "road": "武林路",
+          "distance": 500,
+          "duration": 340
+        }
+      ]
+    },
+    "B0FFH5": {
+      "distance": 1600,
+      "duration": 980,
+      "steps": [
+        {
+          "instruction": "沿武林广场向北步行约 1.4 公里",
+          "road": "武林广场",
+          "distance": 1400,
+          "duration": 860
+        }
+      ]
+    },
+    "B0FFH6": {
+      "distance": 950,
+      "duration": 610,
+      "steps": [
+        {
+          "instruction": "沿延安路向南约 700 米,进入嘉里中心",
+          "road": "延安路",
+          "distance": 700,
+          "duration": 460
+        }
+      ]
+    }
+  }
+}

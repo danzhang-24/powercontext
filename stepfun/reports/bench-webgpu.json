@@ -1,0 +1,48 @@
+{
+  "env": {
+    "backendRequested": "webgpu",
+    "corpusDocs": 12,
+    "warmRepeats": 3,
+    "querySet": 8,
+    "repeat": 3,
+    "seekdb": {
+      "ok": true,
+      "mode": "server",
+      "seekdbVersion": "5.7.25-OceanBase seekdb-v1.4.0.0",
+      "collection": "kb_documents",
+      "dimension": 384,
+      "analyzer": "ik",
+      "fusion": "RRF (DBMS_HYBRID_SEARCH)",
+      "docCount": 12,
+      "uptimeMs": 5819298
+    },
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "cores": 2,
+    "webgpu": {
+      "supported": true,
+      "reason": "adapter 可用"
+    }
+  },
+  "runs": [
+    {
+      "dtype": "q8",
+      "backend": "webgpu",
+      "fellBack": false,
+      "modelBytes": 22972370,
+      "modelLoadMs": 5752.3,
+      "modelDownloadMs": 305.4,
+      "coldEmbedMs": 87797,
+      "warmEmbedMs": 77407.5,
+      "embedThroughputDocsPerSec": 0.16,
+      "writeTotalMs": 645,
+      "seekdbWriteMsMedian": 76.6,
+      "indexRefreshMsMedian": 528.9,
+      "queryEmbedMsMedian": 598,
+      "seekdbSearchMsMedian": 8.29,
+      "seekdbSearchMsP95": 46.48,
+      "endToEndMsMedian": 633,
+      "endToEndMsP95": 818,
+      "samples": 24
+    }
+  ]
+}

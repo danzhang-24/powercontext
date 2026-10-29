@@ -280,6 +280,23 @@ PowerContext 是 [PowerMem](https://www.powermem.ai/) 的后续项目。
 [查看全部贡献者](https://github.com/oceanbase/powercontext/graphs/contributors) ·
 [参与贡献](CONTRIBUTING.md)
 
+## 🏆 OceanBase 2026 大赛参赛作品
+
+本 fork 收录本次 OceanBase 大赛的参赛作品。下列每个目录都**自包含、可独立运行**,
+**不依赖** `src/` 下的 PowerContext 核心功能代码:
+
+| 赛题 | 目录 | 主要交付物 | 一键验证 |
+| --- | --- | --- | --- |
+| 《Just for Fun——用 Dify 做一个好玩的智能应用》(子题 **800513**) | [`dify/`](dify/) | Dify 应用 DSL + 记忆/设定卡服务 | `bash dify/scripts/cleanroom_check.sh` |
+| 《规有所依——面向软件持续演进的 SDD 上下文管理系统》 | [`minimax/`](minimax/) | `sddctx` 模块 + 实测记录 | `bash minimax/scripts/acceptance_check.sh` |
+| 《高德地图 · 周边去哪儿》 | [`gaode/`](gaode/) | `SKILL.md` | `node gaode/scripts/dry_run.mjs` |
+| 《阶跃星辰 × seekdb》端侧 AI 迷你知识库 | [`stepfun/`](stepfun/) | 浏览器端侧 embedding + seekdb 混合检索 | `bash stepfun/scripts/cleanroom_check.sh` |
+| 《Qoder》PaperPocket | [`qoder/`](qoder/) | 检索 CLI + 记录 | `bash qoder/scripts/verify.sh` |
+
+> 所有作品都在**默认分支 `master`** 上,评测平台从默认分支检出即可看到,无需切分支。
+
+完整索引(交付物清单、前置依赖与复现命令):[`SUBMISSIONS.md`](SUBMISSIONS.md)。
+
 ## 许可证
 
 PowerContext 基于 [Apache License 2.0](LICENSE) 发布。

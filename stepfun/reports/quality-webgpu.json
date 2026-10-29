@@ -1,0 +1,644 @@
+{
+  "k": 5,
+  "corpusSize": 12,
+  "queryCount": 20,
+  "fulltextMode": "keywords",
+  "seekdb": {
+    "version": "5.7.25-OceanBase seekdb-v1.4.0.0",
+    "mode": "server",
+    "collection": "kb_documents"
+  },
+  "runs": [
+    {
+      "dtype": "q8",
+      "backend": "webgpu",
+      "modelBytes": 22972370,
+      "hybrid": {
+        "recallAtK": 0.95,
+        "ndcgAtK": 0.8224
+      },
+      "vectorOnly": {
+        "recallAtK": 0.775,
+        "ndcgAtK": 0.6921
+      },
+      "details": [
+        {
+          "query": "seekdb 是什么",
+          "relevant": [
+            "seekdb 是什么"
+          ],
+          "keywords": [
+            "seekdb"
+          ],
+          "hybridTop": [
+            "seekdb 是什么",
+            "OceanBase 与 seekdb 的关系",
+            "全文索引与分词",
+            "HNSW 向量索引",
+            "批量向量化优化"
+          ],
+          "vectorTop": [
+            "seekdb 是什么",
+            "OceanBase 与 seekdb 的关系",
+            "全文索引与分词",
+            "HNSW 向量索引",
+            "批量向量化优化"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 1
+        },
+        {
+          "query": "混合检索是怎么做的",
+          "relevant": [
+            "混合检索原理",
+            "混合检索的工程要点"
+          ],
+          "keywords": [
+            "混合检",
+            "合检索"
+          ],
+          "hybridTop": [
+            "混合检索的工程要点",
+            "混合检索原理",
+            "模型量化 INT8",
+            "批量向量化优化",
+            "全文索引与分词"
+          ],
+          "vectorTop": [
+            "混合检索的工程要点",
+            "批量向量化优化",
+            "模型量化 INT8",
+            "混合检索原理",
+            "全文索引与分词"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 0.8772
+        },
+        {
+          "query": "RRF 的两个关键参数是什么",
+          "relevant": [
+            "RRF 融合参数"
+          ],
+          "keywords": [
+            "rrf",
+            "两个关",
+            "关键参",
+            "键参数"
+          ],
+          "hybridTop": [
+            "混合检索原理",
+            "RRF 融合参数",
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "模型量化 INT8"
+          ],
+          "vectorTop": [
+            "混合检索原理",
+            "批量向量化优化",
+            "RRF 融合参数",
+            "混合检索的工程要点",
+            "模型量化 INT8"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 0.6309,
+          "vectorRecall": 1,
+          "vectorNdcg": 0.5
+        },
+        {
+          "query": "向量索引用的是什么结构",
+          "relevant": [
+            "HNSW 向量索引"
+          ],
+          "keywords": [
+            "向量索",
+            "量索引",
+            "结构"
+          ],
+          "hybridTop": [
+            "seekdb 是什么",
+            "混合检索的工程要点",
+            "HNSW 向量索引",
+            "混合检索原理",
+            "批量向量化优化"
+          ],
+          "vectorTop": [
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "模型量化 INT8",
+            "seekdb 是什么",
+            "全文索引与分词"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 0.5,
+          "vectorRecall": 0,
+          "vectorNdcg": 0
+        },
+        {
+          "query": "中文全文检索应该用什么分词器",
+          "relevant": [
+            "全文索引与分词"
+          ],
+          "keywords": [
+            "文全文",
+            "全文检",
+            "文检索",
+            "检索应",
+            "索应该",
+            "分词器"
+          ],
+          "hybridTop": [
+            "全文索引与分词",
+            "混合检索的工程要点",
+            "混合检索原理",
+            "模型量化 INT8",
+            "批量向量化优化"
+          ],
+          "vectorTop": [
+            "全文索引与分词",
+            "混合检索的工程要点",
+            "批量向量化优化",
+            "RRF 融合参数",
+            "seekdb 是什么"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 1
+        },
+        {
+          "query": "浏览器里怎么运行 embedding 模型",
+          "relevant": [
+            "Transformers.js 端侧推理"
+          ],
+          "keywords": [
+            "embedding",
+            "浏览器",
+            "览器里",
+            "运行",
+            "模型"
+          ],
+          "hybridTop": [
+            "批量向量化优化",
+            "WebGPU 与 WASM 后端",
+            "模型量化 INT8",
+            "seekdb 是什么",
+            "Transformers.js 端侧推理"
+          ],
+          "vectorTop": [
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "全文索引与分词",
+            "模型量化 INT8",
+            "WebGPU 与 WASM 后端"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 0.3869,
+          "vectorRecall": 0,
+          "vectorNdcg": 0
+        },
+        {
+          "query": "INT8 量化能把模型压缩多少",
+          "relevant": [
+            "模型量化 INT8"
+          ],
+          "keywords": [
+            "int8",
+            "模型压",
+            "型压缩",
+            "压缩多",
+            "缩多少",
+            "量化"
+          ],
+          "hybridTop": [
+            "模型量化 INT8",
+            "批量向量化优化",
+            "FP16 量化",
+            "WebGPU 与 WASM 后端",
+            "混合检索的工程要点"
+          ],
+          "vectorTop": [
+            "模型量化 INT8",
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "FP16 量化",
+            "WebGPU 与 WASM 后端"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 1
+        },
+        {
+          "query": "FP16 和 INT8 有什么区别",
+          "relevant": [
+            "FP16 量化",
+            "模型量化 INT8"
+          ],
+          "keywords": [
+            "fp16",
+            "int8",
+            "区别"
+          ],
+          "hybridTop": [
+            "FP16 量化",
+            "模型量化 INT8",
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "全文索引与分词"
+          ],
+          "vectorTop": [
+            "FP16 量化",
+            "批量向量化优化",
+            "模型量化 INT8",
+            "混合检索的工程要点",
+            "全文索引与分词"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 0.9197
+        },
+        {
+          "query": "WebGPU 不可用的时候怎么办",
+          "relevant": [
+            "WebGPU 与 WASM 后端"
+          ],
+          "keywords": [
+            "webgpu",
+            "时候"
+          ],
+          "hybridTop": [
+            "WebGPU 与 WASM 后端",
+            "Transformers.js 端侧推理",
+            "FP16 量化",
+            "全文索引与分词",
+            "批量向量化优化"
+          ],
+          "vectorTop": [
+            "WebGPU 与 WASM 后端",
+            "FP16 量化",
+            "Transformers.js 端侧推理",
+            "全文索引与分词",
+            "批量向量化优化"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 1
+        },
+        {
+          "query": "怎么提高端侧向量化的吞吐",
+          "relevant": [
+            "批量向量化优化"
+          ],
+          "keywords": [
+            "提高端",
+            "高端侧",
+            "端侧向",
+            "侧向量",
+            "向量化",
+            "化的吞",
+            "吞吐"
+          ],
+          "hybridTop": [
+            "批量向量化优化",
+            "模型量化 INT8",
+            "混合检索的工程要点",
+            "seekdb 是什么",
+            "混合检索原理"
+          ],
+          "vectorTop": [
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "模型量化 INT8",
+            "全文索引与分词",
+            "seekdb 是什么"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 1
+        },
+        {
+          "query": "混合检索落地时有哪些工程要点",
+          "relevant": [
+            "混合检索的工程要点",
+            "混合检索原理"
+          ],
+          "keywords": [
+            "混合检",
+            "合检索",
+            "检索落",
+            "索落地",
+            "落地时",
+            "些工程",
+            "程要点"
+          ],
+          "hybridTop": [
+            "混合检索的工程要点",
+            "混合检索原理",
+            "模型量化 INT8",
+            "RRF 融合参数",
+            "批量向量化优化"
+          ],
+          "vectorTop": [
+            "混合检索的工程要点",
+            "批量向量化优化",
+            "全文索引与分词",
+            "seekdb 是什么",
+            "OceanBase 与 seekdb 的关系"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 0.5,
+          "vectorNdcg": 0.6131
+        },
+        {
+          "query": "OceanBase 和 seekdb 是什么关系",
+          "relevant": [
+            "OceanBase 与 seekdb 的关系"
+          ],
+          "keywords": [
+            "oceanbase",
+            "seekdb",
+            "关系"
+          ],
+          "hybridTop": [
+            "OceanBase 与 seekdb 的关系",
+            "seekdb 是什么",
+            "全文索引与分词",
+            "HNSW 向量索引",
+            "批量向量化优化"
+          ],
+          "vectorTop": [
+            "OceanBase 与 seekdb 的关系",
+            "seekdb 是什么",
+            "全文索引与分词",
+            "HNSW 向量索引",
+            "批量向量化优化"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 1
+        },
+        {
+          "query": "向量检索和全文检索各自擅长什么",
+          "relevant": [
+            "混合检索原理",
+            "全文索引与分词"
+          ],
+          "keywords": [
+            "向量检",
+            "量检索",
+            "索和全",
+            "全文检",
+            "文检索",
+            "检索各",
+            "索各自",
+            "各自擅",
+            "自擅长"
+          ],
+          "hybridTop": [
+            "混合检索的工程要点",
+            "seekdb 是什么",
+            "混合检索原理",
+            "HNSW 向量索引",
+            "模型量化 INT8"
+          ],
+          "vectorTop": [
+            "全文索引与分词",
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "seekdb 是什么",
+            "RRF 融合参数"
+          ],
+          "hybridRecall": 0.5,
+          "hybridNdcg": 0.3066,
+          "vectorRecall": 0.5,
+          "vectorNdcg": 0.6131
+        },
+        {
+          "query": "为什么写入之后要刷新索引",
+          "relevant": [
+            "HNSW 向量索引",
+            "混合检索的工程要点"
+          ],
+          "keywords": [
+            "入之后",
+            "后要刷",
+            "刷新索",
+            "新索引",
+            "写入"
+          ],
+          "hybridTop": [
+            "混合检索的工程要点",
+            "HNSW 向量索引",
+            "seekdb 是什么",
+            "批量向量化优化",
+            "模型量化 INT8"
+          ],
+          "vectorTop": [
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "模型量化 INT8",
+            "全文索引与分词",
+            "WebGPU 与 WASM 后端"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 0.5,
+          "vectorNdcg": 0.3869
+        },
+        {
+          "query": "本地推理用到了哪些运行时",
+          "relevant": [
+            "Transformers.js 端侧推理",
+            "WebGPU 与 WASM 后端"
+          ],
+          "keywords": [
+            "本地推",
+            "地推理",
+            "些运行",
+            "运行时"
+          ],
+          "hybridTop": [
+            "批量向量化优化",
+            "seekdb 是什么",
+            "Transformers.js 端侧推理",
+            "混合检索的工程要点",
+            "全文索引与分词"
+          ],
+          "vectorTop": [
+            "混合检索的工程要点",
+            "批量向量化优化",
+            "全文索引与分词",
+            "WebGPU 与 WASM 后端",
+            "OceanBase 与 seekdb 的关系"
+          ],
+          "hybridRecall": 0.5,
+          "hybridNdcg": 0.3066,
+          "vectorRecall": 0.5,
+          "vectorNdcg": 0.2641
+        },
+        {
+          "query": "模型体积可以压缩到多少",
+          "relevant": [
+            "模型量化 INT8",
+            "FP16 量化"
+          ],
+          "keywords": [
+            "模型体",
+            "型体积",
+            "缩到多",
+            "压缩",
+            "多少"
+          ],
+          "hybridTop": [
+            "批量向量化优化",
+            "模型量化 INT8",
+            "OceanBase 与 seekdb 的关系",
+            "WebGPU 与 WASM 后端",
+            "FP16 量化"
+          ],
+          "vectorTop": [
+            "批量向量化优化",
+            "模型量化 INT8",
+            "混合检索的工程要点",
+            "seekdb 是什么",
+            "全文索引与分词"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 0.6241,
+          "vectorRecall": 0.5,
+          "vectorNdcg": 0.3869
+        },
+        {
+          "query": "RRF 的排名窗口是什么意思",
+          "relevant": [
+            "RRF 融合参数"
+          ],
+          "keywords": [
+            "rrf",
+            "排名窗",
+            "名窗口",
+            "意思"
+          ],
+          "hybridTop": [
+            "RRF 融合参数",
+            "混合检索原理",
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "全文索引与分词"
+          ],
+          "vectorTop": [
+            "RRF 融合参数",
+            "混合检索原理",
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "全文索引与分词"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 1
+        },
+        {
+          "query": "端侧知识库的数据存在哪里",
+          "relevant": [
+            "seekdb 是什么",
+            "混合检索的工程要点"
+          ],
+          "keywords": [
+            "端侧知",
+            "侧知识",
+            "知识库",
+            "库的数",
+            "数据存"
+          ],
+          "hybridTop": [
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "seekdb 是什么",
+            "全文索引与分词",
+            "Transformers.js 端侧推理"
+          ],
+          "vectorTop": [
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "模型量化 INT8",
+            "seekdb 是什么",
+            "全文索引与分词"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 0.6934,
+          "vectorRecall": 1,
+          "vectorNdcg": 0.6509
+        },
+        {
+          "query": "ik 分词器的 smart 模式",
+          "relevant": [
+            "全文索引与分词"
+          ],
+          "keywords": [
+            "smart",
+            "分词器",
+            "ik",
+            "模式"
+          ],
+          "hybridTop": [
+            "全文索引与分词",
+            "OceanBase 与 seekdb 的关系",
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "模型量化 INT8"
+          ],
+          "vectorTop": [
+            "批量向量化优化",
+            "全文索引与分词",
+            "混合检索的工程要点",
+            "模型量化 INT8",
+            "WebGPU 与 WASM 后端"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 0.6309
+        },
+        {
+          "query": "HNSW 的距离度量怎么选",
+          "relevant": [
+            "HNSW 向量索引"
+          ],
+          "keywords": [
+            "hnsw",
+            "距离度",
+            "离度量"
+          ],
+          "hybridTop": [
+            "HNSW 向量索引",
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "模型量化 INT8",
+            "seekdb 是什么"
+          ],
+          "vectorTop": [
+            "HNSW 向量索引",
+            "批量向量化优化",
+            "混合检索的工程要点",
+            "模型量化 INT8",
+            "seekdb 是什么"
+          ],
+          "hybridRecall": 1,
+          "hybridNdcg": 1,
+          "vectorRecall": 1,
+          "vectorNdcg": 1
+        }
+      ]
+    }
+  ]
+}

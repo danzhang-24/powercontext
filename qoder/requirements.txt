@@ -1,0 +1,8 @@
+# 应用运行时依赖（PaperPocket 自身）。
+# pymysql 锁 1.1.1：PowerContext Server 依赖 aiomysql 0.3.2，后者按函数调用
+# pymysql 的 escape_dict / escape_bytes_prefixed；pymysql 1.2+ 把它们改成字符串
+# 哨兵，两者同时存在会让 PowerContext 的写接口返回 HTTP 500。
+pymysql==1.1.1
+
+# 单元测试框架。
+pytest>=8.0,<10

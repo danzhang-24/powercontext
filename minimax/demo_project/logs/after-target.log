@@ -1,0 +1,14 @@
+# 阶段：after
+# 套件：target
+# 命令：/workspace/pc/minimax/.venv/bin/python -m pytest -p no:cacheprovider -q -m target
+# 退出码：0
+# 统计：通过 4，失败 0，错误 0
+# 代码版本：f7971538e037+content:e168b3b33781
+# 汇总：4 passed, 6 deselected in 0.08s
+
+----- stdout -----
+....                                                                     [100%]
+4 passed, 6 deselected in 0.08s
+
+----- stderr -----
+

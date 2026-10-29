@@ -1,0 +1,14 @@
+# 阶段：after
+# 套件：regression
+# 命令：/workspace/pc/minimax/.venv/bin/python -m pytest -p no:cacheprovider -q -m regression
+# 退出码：0
+# 统计：通过 6，失败 0，错误 0
+# 代码版本：f7971538e037+content:e168b3b33781
+# 汇总：6 passed, 4 deselected in 0.07s
+
+----- stdout -----
+......                                                                   [100%]
+6 passed, 4 deselected in 0.07s
+
+----- stderr -----
+

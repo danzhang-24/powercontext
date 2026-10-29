@@ -1,0 +1,138 @@
+{
+  "dtype": "q8",
+  "wasm": {
+    "backend": "wasm",
+    "fellBack": false,
+    "embedMs": 6343.800000000745
+  },
+  "webgpu": {
+    "backend": "webgpu",
+    "fellBack": false,
+    "reason": null,
+    "embedMs": 89405.19999999925
+  },
+  "vectorConsistency": {
+    "avgCosine": 0.997221,
+    "maxAbsDiff": 0.018127411138266325,
+    "minCosine": 0.992691
+  },
+  "rankingIdentical": true,
+  "topK": {
+    "wasm": [
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ]
+    ],
+    "webgpu": [
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ],
+      [
+        "cmp-0",
+        "cmp-11",
+        "cmp-4",
+        "cmp-3",
+        "cmp-9"
+      ]
+    ]
+  }
+}

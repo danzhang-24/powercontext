@@ -1,0 +1,13 @@
+--- a/src/order_discount/engine.py
++++ b/src/order_discount/engine.py
+@@ -27,7 +27,9 @@
+     Returns:
+         优惠金额（元），保留两位小数。
+     """
+-    amount = order.total
++    if any(item.fragile for item in order.items):
++        return 0.0
++    amount = order.subtotal
+     discount = 0.0
+     for threshold, reduction in DISCOUNT_TIERS:
+         if amount >= threshold:

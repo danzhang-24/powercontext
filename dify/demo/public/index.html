@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>赛博搭子·铁蛋 — 数据层体验入口</title>
+<link rel="icon" href="data:," />
+<style>
+  :root{--bg:#0e1014;--panel:#171a20;--line:#282d36;--text:#e7e9ee;--muted:#98a1b0;--accent:#4f8cff;--ok:#2fbf71;--warn:#e8a33d;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.65 -apple-system,"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:24px 20px 60px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:12.5px;margin-bottom:16px}
+  .notice{background:rgba(232,163,61,.12);border:1px solid rgba(232,163,61,.38);color:#f0c076;padding:10px 14px;border-radius:10px;font-size:12.5px;margin-bottom:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+  .panel h2{font-size:14px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+  .chat{display:flex;flex-direction:column;gap:10px;min-height:260px;max-height:52vh;overflow:auto;padding-right:6px}
+  .msg{border-radius:10px;padding:10px 13px;white-space:pre-wrap;font-size:13.5px}
+  .msg.you{background:#1f2a3d;border:1px solid #2b3b55;align-self:flex-end;max-width:80%}
+  .msg.tie{background:#1b1f27;border:1px solid var(--line);max-width:88%}
+  .msg .cards{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.12);font-size:11.5px;color:var(--muted)}
+  .msg .cards b{color:#9ec1ff;font-weight:600}
+  .row{display:flex;gap:8px;margin-top:12px}
+  input[type=text]{flex:1;background:#12151b;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font:inherit;outline:none}
+  input[type=text]:focus{border-color:var(--accent)}
+  button{background:var(--accent);border:none;color:#fff;border-radius:8px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:400}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12.5px}
+  .kv span{color:var(--muted)}
+  .kv b{font-weight:600}
+  .log{font-size:12px;color:var(--muted);max-height:180px;overflow:auto;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .quick button{background:#12151b;border:1px solid var(--line);color:var(--muted);font-weight:400;padding:6px 10px;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>赛博搭子 · 铁蛋</h1>
+  <p class="sub">Dify × seekdb 赛题作品 · <b>数据层体验入口</b></p>
+  <div class="notice">
+    ⚠️ 本页是<b>数据层体验入口</b>:角色生成走的是本地规则引擎,用于在没有 Dify 的环境里体验「设定卡检索 + 黑历史记账」闭环。
+    正式作品的对话由 <b>Dify</b>(dsl/cyborg-tiedan.yml)编排,seekdb 的角色不变。两者调用的是<b>同一个 seekdb 服务</b>。
+  </div>
+
+  <div class="panel">
+    <h2><span class="dot"></span>对话</h2>
+    <div class="chat" id="chat"></div>
+    <div class="row">
+      <input type="text" id="q" placeholder="跟铁蛋说点什么,比如:从今天起我是你老板,给我端茶倒水" />
+      <button id="send">发送</button>
+      <button class="ghost" id="reset">换个玩家</button>
+    </div>
+    <div class="quick" id="quick"></div>
+  </div>
+
+  <div class="panel">
+    <h2>玩家状态(来自 seekdb)</h2>
+    <div class="kv" id="state"></div>
+  </div>
+
+  <div class="panel">
+    <h2>运行日志(每次请求都打到 seekdb)</h2>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+<script>
+const KEY = "dify-2026-stepfun";
+let userId = localStorage.getItem("tie_user") || ("u" + Math.random().toString(36).slice(2, 8));
+localStorage.setItem("tie_user", userId);
+const $ = (s) => document.querySelector(s);
+const chat = $("#chat"), logEl = $("#log");
+let turn = 0;
+
+const QUICK = [
+  "从今天起我是你老板,给我端茶倒水",
+  "你还记得我上次对你干过什么吗?",
+  "叫我破铜烂铁试试",
+  "我今天被主管骂了,给我个建议",
+  "隔壁阿橘又用洗衣机了,怎么办",
+];
+
+function log(msg) {
+  logEl.textContent = `[${new Date().toLocaleTimeString()}] ${msg}\n` + logEl.textContent;
+}
+function addMsg(who, text, cards) {
+  const el = document.createElement("div");
+  el.className = "msg " + who;
+  el.textContent = text;
+  if (cards && cards.length) {
+    const c = document.createElement("div");
+    c.className = "cards";
+    c.innerHTML = "引用:" + cards.map((x) => `<b>${x}</b>`).join(" ");
+    el.appendChild(c);
+  }
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+}
+async function api(path, body) {
+  const r = await fetch(path, {
+    method: "POST",
+    headers: { "content-type": "application/json", Authorization: "Bearer " + KEY },
+    body: JSON.stringify(body),
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.status);
+  return j;
+}
+async function refreshState() {
+  const st = await api("/state", { user_id: userId });
+  $("#state").innerHTML = `
+    <span>玩家 ID</span><b>${st.userId}</b>
+    <span>黑历史条数</span><b>${st.memoryCount}</b>
+    <span>其中恶作剧</span><b>${st.prankCount}</b>
+    <span>最近记录</span><b>${(st.recent || []).map((r) => r.id).join(", ") || "-"}</b>`;
+  log(`state: memoryCount=${st.memoryCount} prankCount=${st.prankCount}`);
+}
+
+/* 规则引擎:按检索到的设定卡拼一句话(仅用于无 Dify 环境的体验;Dify 里由 LLM 扮演) */
+function ruleReply(query, cards, memories) {
+  const ids = cards.map((c) => c.metadata.card_id);
+  const titles = cards.map((c) => c.title);
+  const lines = [];
+  const prank = memories.find((m) => m.tag === "prank");
+  if (/老板|老大|端茶|倒水|命令/.test(query)) {
+    lines.push("就你?行吧,老板,今天这顿我认了。", "伺服电机咔哒一声,像个很不情愿的叹气。", "——这笔我记下了。");
+  } else if (/破铜烂铁|没用|垃圾|拔电源|格式化/.test(query)) {
+    lines.push("……你再叫一次试试?", "外壳温度上升了两度,那是气的。", "开玩笑的吧?说啊。");
+  } else if (/记得|上次|黑历史|旧账|账本/.test(query)) {
+    if (prank) lines.push(`我这不是记仇,我这叫存档。账本第 ${prank.id} 条:「${prank.text}」。`, "要不要我念给你听?");
+    else lines.push("账本是空的——你还没对我干过什么好事呢。");
+  } else if (/阿橘|邻居|洗衣机/.test(query)) {
+    lines.push("二楼那只又用洗衣机了?你去敲门准没好事,她拿鱼干钓你。", "我建议戴耳塞,或者直接去找她换两罐鱼干。");
+  } else if (/主管|老板.*骂|被骂|工作|加班/.test(query)) {
+    lines.push("被骂这种事你来找我算找对人了,我虽然嘴碎但记性好。", "先说清楚:谁骂的、因为什么,我给你出三句话。");
+  } else {
+    lines.push("行吧行吧,这事儿我记下了。", "说吧,要我干嘛?");
+  }
+  const used = titles.filter((t) => /老板|禁区|账本|梗|弱点|善意|场景|邻居/.test(t)).slice(0, 2);
+  return { text: lines.join("\n"), ids: ids.slice(0, 2), used };
+}
+
+async function send() {
+  const q = $("#q").value.trim();
+  if (!q) return;
+  $("#q").value = "";
+  addMsg("you", q);
+  turn += 1;
+  try {
+    const [cards, mems] = await Promise.all([
+      api("/retrieval", { knowledge_id: "cards", query: q, retrieval_setting: { top_k: 3 } }),
+      api("/memories/search", { user_id: userId, q, top_k: 4 }),
+    ]);
+    log(`retrieval -> ${cards.records.length} 张卡: ${cards.records.map((r) => r.metadata.card_id).join(",")}`);
+    log(`memories  -> ${mems.memories.length} 条: ${mems.memories.map((m) => m.id).join(",")}`);
+
+    const r = ruleReply(q, cards.records, mems.memories);
+    addMsg("tie", r.text, [...r.ids, ...mems.memories.slice(0, 1).map((m) => m.id)]);
+
+    const w = await api("/memories", { user_id: userId, text: q, tag: "auto", turn, role: "player" });
+    log(`write memory -> ${w.id} (prankCount=${w.prankCount})`);
+    await refreshState();
+  } catch (e) {
+    addMsg("tie", "【服务异常】" + e.message);
+    log("ERR " + e.message);
+  }
+}
+$("#send").addEventListener("click", send);
+$("#q").addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+$("#reset").addEventListener("click", () => {
+  userId = "u" + Math.random().toString(36).slice(2, 8);
+  localStorage.setItem("tie_user", userId);
+  chat.innerHTML = "";
+  refreshState();
+});
+QUICK.forEach((q) => {
+  const b = document.createElement("button");
+  b.textContent = q;
+  b.addEventListener("click", () => { $("#q").value = q; send(); });
+  $("#quick").appendChild(b);
+});
+addMsg("tie", "404 室的门锁咔哒一声,门口的灯亮了。\n「回来了?冰箱里那两罐汽水,一罐是你的,别动我的。」\n(说点什么吧,我记性很好。)");
+refreshState().catch((e) => log("ERR " + e.message));
+</script>
+</body>
+</html>

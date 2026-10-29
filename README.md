@@ -337,6 +337,22 @@ Thank you to everyone who contributes to PowerContext. ❤️
 [See all contributors](https://github.com/oceanbase/powercontext/graphs/contributors) ·
 [Start contributing](CONTRIBUTING.md)
 
+## 🏆 OceanBase 2026 Contest Submissions
+
+This fork hosts the submissions for the OceanBase 2026 contest. Each directory below is
+**self-contained and runs on its own** — none of them depends on the PowerContext core code in
+`src/`:
+
+| Contest | Directory | Main deliverable | One-command check |
+| --- | --- | --- | --- |
+| Just for Fun — build a fun AI app with Dify (sub-question **800513**) | [`dify/`](dify/) | Dify app DSL + memory/knowledge service | `bash dify/scripts/cleanroom_check.sh` |
+| SDD context management for continuous software evolution | [`minimax/`](minimax/) | `sddctx` module + recorded runs | `bash minimax/scripts/acceptance_check.sh` |
+| 高德地图 · 周边去哪儿 (nearby places explorer) | [`gaode/`](gaode/) | `SKILL.md` | `node gaode/scripts/dry_run.mjs` |
+| 阶跃星辰 × seekdb | [`stepfun/`](stepfun/) | in-browser embedding + seekdb hybrid search | `bash stepfun/scripts/cleanroom_check.sh` |
+| Qoder | [`qoder/`](qoder/) | PaperPocket CLI + records | `bash qoder/scripts/verify.sh` |
+
+Full index (deliverables, prerequisites and reproduction commands): [`SUBMISSIONS.md`](SUBMISSIONS.md).
+
 ## License
 
 PowerContext is licensed under the [Apache License 2.0](LICENSE).

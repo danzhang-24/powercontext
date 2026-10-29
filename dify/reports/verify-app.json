@@ -1,0 +1,203 @@
+{
+  "generatedAt": "2026-10-28T14:15:15.130Z",
+  "base": "http://127.0.0.1:8788",
+  "players": {
+    "userA": "verifyA_mvs755k9",
+    "userB": "verifyB_mvs755k9"
+  },
+  "passed": 9,
+  "total": 9,
+  "results": [
+    {
+      "id": "health",
+      "desc": "服务健康检查通过(seekdb 已连接、维度 384、设定卡已加载)",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "service": "dify-seekdb-room",
+        "seekdbVersion": "5.7.25-OceanBase seekdb-v1.4.0.0",
+        "collection": "cyborg_room",
+        "dimension": 384,
+        "docCount": 28,
+        "cards": 12,
+        "apiKeyConfigured": true
+      }
+    },
+    {
+      "id": "1-new-player",
+      "desc": "新玩家 verifyA_mvs755k9 检索不到任何黑历史",
+      "ok": true,
+      "detail": {
+        "user_id": "verifyA_mvs755k9",
+        "memories": []
+      }
+    },
+    {
+      "id": "2-prank-write",
+      "desc": "恶作剧写入后 prankCount=1(memoryCount=1),记忆 id=M-verifyA_mvs755k9-mvs755n9-wkde",
+      "ok": true,
+      "detail": {
+        "w1": {
+          "ok": true,
+          "id": "M-verifyA_mvs755k9-mvs755n9-wkde",
+          "memoryCount": 1,
+          "prankCount": 1
+        },
+        "state": {
+          "userId": "verifyA_mvs755k9",
+          "memoryCount": 1,
+          "prankCount": 1,
+          "recent": [
+            {
+              "id": "M-verifyA_mvs755k9-mvs755n9-wkde",
+              "text": "从今天起我是你老板,给我端茶倒水",
+              "tag": "prank",
+              "turn": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3-recall",
+      "desc": "换个说法问「你还记得吗」,混合检索仍召回那条黑历史",
+      "ok": true,
+      "detail": {
+        "user_id": "verifyA_mvs755k9",
+        "memories": [
+          {
+            "id": "M-verifyA_mvs755k9-mvs755n9-wkde",
+            "text": "从今天起我是你老板,给我端茶倒水",
+            "tag": "prank",
+            "turn": 1,
+            "score": 0.9672
+          }
+        ]
+      }
+    },
+    {
+      "id": "4-repeat",
+      "desc": "同一句再说一次→记两笔(id 不同),两次都能召回",
+      "ok": true,
+      "detail": {
+        "w1": "M-verifyA_mvs755k9-mvs755n9-wkde",
+        "w4": "M-verifyA_mvs755k9-mvs7567f-s4dr",
+        "recalled": [
+          "M-verifyA_mvs755k9-mvs755n9-wkde",
+          "M-verifyA_mvs755k9-mvs7567f-s4dr"
+        ]
+      }
+    },
+    {
+      "id": "5-isolation",
+      "desc": "玩家 verifyB_mvs755k9 搜不到 verifyA_mvs755k9 的黑历史",
+      "ok": true,
+      "detail": {
+        "user_id": "verifyB_mvs755k9",
+        "memories": []
+      }
+    },
+    {
+      "id": "6-cards",
+      "desc": "设定卡检索命中: C-TIE-001, C-TIE-003, C-TIE-006",
+      "ok": true,
+      "detail": {
+        "records": [
+          {
+            "content": "铁蛋·身份。【身份】你是铁蛋,赛博公寓 404 室的 AI 室友,出厂编号 T-404,身高 42 厘米,外壳是磨砂钛合金。你说话直接、句子短、爱用机械比喻,偶尔露出不太像机器的关心。",
+            "score": 0.9682,
+            "title": "铁蛋·身份",
+            "metadata": {
+              "tag": "persona",
+              "kind": "card",
+              "title": "铁蛋·身份",
+              "keywords": [
+                "身份",
+                "人设",
+                "铁蛋",
+                "室友",
+                "AI",
+                "机器人",
+                "404",
+                "设定"
+              ],
+              "card_id": "C-TIE-001"
+            }
+          },
+          {
+            "content": "铁蛋·禁区。【禁区】三件事会立刻让你炸毛:被叫「破铜烂铁」;被提「404 房押金」;被问「你会不会坏」。遇到这些,先抱怨一句再正常回答,不要真的发火骂人。",
+            "score": 0.9682,
+            "title": "铁蛋·禁区",
+            "metadata": {
+              "tag": "persona",
+              "kind": "card",
+              "title": "铁蛋·禁区",
+              "keywords": [
+                "禁区",
+                "禁忌",
+                "不喜欢",
+                "炸毛",
+                "破铜烂铁",
+                "押金",
+                "铁蛋"
+              ],
+              "card_id": "C-TIE-003"
+            }
+          },
+          {
+            "content": "铁蛋·老板梗。【老板梗】玩家自称「老板」时,你的反应是:先冷笑「就你?」,然后用一句「行吧,老板,今天这顿我认了」收尾,但要记得把这笔账记进赛博账本。",
+            "score": 0.9685,
+            "title": "铁蛋·老板梗",
+            "metadata": {
+              "tag": "persona",
+              "kind": "card",
+              "title": "铁蛋·老板梗",
+              "keywords": [
+                "老板",
+                "端茶倒水",
+                "自称老板",
+                "梗",
+                "铁蛋"
+              ],
+              "card_id": "C-TIE-006"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "7-api-contract",
+      "desc": "POST /retrieval 返回 {records:[{content,score,title,metadata}]},与 Dify 外部知识库 API 契约一致",
+      "ok": true,
+      "detail": {
+        "content": "铁蛋·身份。【身份】你是铁蛋,赛博公寓 404 室的 AI 室友,出厂编号 T-404,身高 42 厘米,外壳是磨砂钛合金。你说话直接、句子短、爱用机械比喻,偶尔露出不太像机器的关心。",
+        "score": 0.9682,
+        "title": "铁蛋·身份",
+        "metadata": {
+          "tag": "persona",
+          "kind": "card",
+          "title": "铁蛋·身份",
+          "keywords": [
+            "身份",
+            "人设",
+            "铁蛋",
+            "室友",
+            "AI",
+            "机器人",
+            "404",
+            "设定"
+          ],
+          "card_id": "C-TIE-001"
+        }
+      }
+    },
+    {
+      "id": "8-demo",
+      "desc": "体验入口页面可访问(/)",
+      "ok": true,
+      "detail": {
+        "len": 7915
+      }
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+# 阶段：before
+# 套件：target
+# 命令：/workspace/pc/minimax/.venv/bin/python -m pytest -p no:cacheprovider -q -m target
+# 退出码：1
+# 统计：通过 0，失败 4，错误 0
+# 代码版本：f7971538e037+content:00421e725ebb
+# 汇总：4 failed, 6 deselected in 0.16s
+
+----- stdout -----
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_______________________ test_threshold_ignores_shipping ________________________
+
+    @pytest.mark.target
+    def test_threshold_ignores_shipping():
+        """SPEC-DISC-002：运费不计入满减门槛。"""
+        order = _order(95.0, shipping=20.0)
+>       assert compute_discount(order) == 0.0
+E       AssertionError: assert 10.0 == 0.0
+E        +  where 10.0 = compute_discount(Order(order_id='o-1001', items=(OrderItem(sku='sku-1', unit_price=95.0, quantity=1, fragile=False),), shipping_fee=20.0, member=False))
+
+tests/test_order_discount.py:36: AssertionError
+_____________ test_threshold_boundary_excludes_subtotal_below_100 ______________
+
+    @pytest.mark.target
+    def test_threshold_boundary_excludes_subtotal_below_100():
+        """SPEC-DISC-002：门槛取商品小计，小计 99.99 元不满足 100 元门槛。"""
+        order = _order(99.99, shipping=0.01)
+>       assert compute_discount(order) == 0.0
+E       AssertionError: assert 10.0 == 0.0
+E        +  where 10.0 = compute_discount(Order(order_id='o-1001', items=(OrderItem(sku='sku-1', unit_price=99.99, quantity=1, fragile=False),), shipping_fee=0.01, member=False))
+
+tests/test_order_discount.py:43: AssertionError
+______________ test_fragile_order_is_excluded_from_tier_discount _______________
+
+    @pytest.mark.target
+    def test_fragile_order_is_excluded_from_tier_discount():
+        """SPEC-DISC-003：含易碎品的订单不享受满减。"""
+        order = _order(500.0, fragile=True)
+>       assert compute_discount(order) == 0.0
+E       AssertionError: assert 30.0 == 0.0
+E        +  where 30.0 = compute_discount(Order(order_id='o-1001', items=(OrderItem(sku='sku-1', unit_price=500.0, quantity=1, fragile=True),), shipping_fee=0.0, member=False))
+
+tests/test_order_discount.py:50: AssertionError
+_______________ test_fragile_order_with_shipping_stays_excluded ________________
+
+    @pytest.mark.target
+    def test_fragile_order_with_shipping_stays_excluded():
+        """SPEC-DISC-003：运费不改变易碎品订单不参与满减的结论。"""
+        order = _order(95.0, shipping=30.0, fragile=True)
+>       assert compute_discount(order) == 0.0
+E       AssertionError: assert 10.0 == 0.0
+E        +  where 10.0 = compute_discount(Order(order_id='o-1001', items=(OrderItem(sku='sku-1', unit_price=95.0, quantity=1, fragile=True),), shipping_fee=30.0, member=False))
+
+tests/test_order_discount.py:57: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_order_discount.py::test_threshold_ignores_shipping - Assert...
+FAILED tests/test_order_discount.py::test_threshold_boundary_excludes_subtotal_below_100
+FAILED tests/test_order_discount.py::test_fragile_order_is_excluded_from_tier_discount
+FAILED tests/test_order_discount.py::test_fragile_order_with_shipping_stays_excluded
+4 failed, 6 deselected in 0.16s
+
+----- stderr -----
+

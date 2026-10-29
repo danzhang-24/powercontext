@@ -1,0 +1,10 @@
+# PowerContext Server 依赖（与 paperpocket/requirements.txt 分开安装）。
+# server extra 提供 FastAPI / uvicorn / pycasbin / scalar-fastapi，
+# seekdb extra 提供 pylibseekdb 与 pymysql，cli extra 提供 typer 等命令行依赖。
+powercontext[seekdb,cli,server]==1.2.0
+
+# pymysql 必须锁 1.1.1：aiomysql 0.3.2（PowerContext 依赖）仍按函数调用
+# pymysql 的 escape_dict / escape_bytes_prefixed，而 pymysql 1.2+ 改成了字符串
+# 哨兵。两者同时存在时 POST /v1/memory/remember 会抛
+# TypeError: 'str' object is not callable 并返回 HTTP 500。
+pymysql==1.1.1
